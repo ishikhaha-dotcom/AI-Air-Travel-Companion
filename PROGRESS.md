@@ -45,6 +45,7 @@ at :8000 serves the built UI — no Vite needed.
 | P4 | Optional LLM adapter | ✅ done | `LLM_MODE=assist` with no LLM server degrades gracefully (verified); number-integrity check on polish; intent gap-fill validated against dataset airports |
 | P5 | Deliverables (README, assumptions, deck outline, demo script, solution summary) | ✅ done | README.md, docs/ASSUMPTIONS.md, docs/ARCHITECTURE.md, deliverables/* all written; run.ps1 one-command launcher |
 | P6 | Winning-plan upgrade: UI overhaul, AI-story flip, conversational refinement, final deck | ✅ done | pytest 38/38 (both LLM modes) · 42/42 benchmarks · deck.pdf/.pptx exported · full plan + status in `docs/WINNING_PLAN.md` |
+| P7 | UI/results polish pass: true great-circle map, compare table, a11y, bug fixes | ✅ done | frontend-only, zero backend risk; pytest 38/38 + benchmarks 42/42 unchanged; `npm run build` clean |
 
 ## Done so far (chronological)
 
@@ -106,6 +107,41 @@ at :8000 serves the built UI — no Vite needed.
     Ollama running (graceful-fallback proof) · harness **42/42** · `npm run build` clean ·
     every UI surface screenshot-verified in a real browser (incl. live refine round-trip:
     B01 + "make it cheaper" → fit 77→81, applied chip rendered).
+
+- **2026-07-12** P7 complete — asked to "improve the UI and the results as much as possible."
+  Audited every component against the live app rather than guessing; found and fixed real gaps,
+  frontend-only (zero backend/scoring changes, so the 42/42 invariant was never at risk):
+  - **RouteMap.tsx**: the map claimed "great-circle arcs" but actually drew straight chords
+    between airports (a plain 2-point `LineString` through `geoPath` has no curvature). Now
+    samples 48 points per hop via `geoInterpolate` for a true curved great circle, and computes
+    the draw-in animation's dash length from the real projected arc length (was a bounding-box
+    guess before). Added a per-leg color legend row for multi-city results (B02/B06) — the
+    legend mapping color→leg segment was simply missing.
+  - **CompareTable.tsx** (new): an at-a-glance ranked table above the result cards — route,
+    price (+delta vs #1), duration (+delta), stops, fit-score bar — for all shown
+    recommendations. Click a row to smooth-scroll to its full card. Directly answers "how do
+    these N picks compare" without reading every card, which the card-only layout couldn't do.
+  - **ResultCard.tsx**: cards ranked #2+ now show a compact "vs #1: +$142 · +2h10m · fit −6"
+    line under the price (reuses fields already in the response — no backend change), plus a
+    `scroll-mt-4` anchor id so CompareTable rows can jump to them, plus a subtle hover shadow.
+  - **PriceCalendar.tsx**: fixed a latent SVG bug — the rounded-top-corner bar path used fixed
+    4px control points that fold back on themselves when a bar is shorter than ~8px (a
+    near-zero-price outlier date), which can render as a visible spike/glitch. Falls back to a
+    plain rect below that height.
+  - **ResultsView.tsx**: added an explicit empty-state card (icon + explanation) for the
+    zero-recommendation case — previously it just silently fell through to the (open-by-default)
+    narrative details with no visual acknowledgment that the search came up empty.
+  - **Accessibility**: global `:focus-visible` ring (previously only `.input` had one — buttons,
+    chips-as-buttons, and table rows had no visible keyboard focus state), `prefers-reduced-motion`
+    guard on all `rise-in`/`skeleton`/`route-arc` animations, `role="status" aria-live="polite"`
+    on the loading skeleton and the refine bar (screen readers now announce search/refine
+    progress), `aria-label` on the refine input.
+  - **Verify**: `npm run build` clean (366KB/121KB gz, +6KB over P6 for CompareTable), backend
+    untouched so pytest 38/38 and benchmark harness 42/42 reconfirmed unchanged; manually
+    checked live API responses for B01 (single-leg + price-by-date), B02 (4-leg multi-city,
+    5 distinct fit scores, unique keys), and B05 (1-result edge case — confirmed CompareTable
+    and the multi-leg legend correctly no-op below their 2-item thresholds instead of rendering
+    broken/empty UI).
 
 ## Decisions log (deviations/refinements vs blueprint — keep appending)
 

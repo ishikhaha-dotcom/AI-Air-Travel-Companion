@@ -46,12 +46,19 @@ export default function PriceCalendar({ series, recommendedDate }: {
           const isRec = d.date === recommendedDate
           const isMin = d.date === minRow.date
           const by = y(d.price)
+          const bh = m.t + ih - by
+          // rounded top-corner path only reads correctly once the bar is
+          // taller than the corner radius — below that, degenerate control
+          // points can fold the path back on itself, so fall back to a plain rect
+          const barPath = bh >= 8
+            ? `M${x(i)},${m.t + ih} L${x(i)},${by + 4} Q${x(i)},${by} ${x(i) + 4},${by} L${x(i) + bw - 4},${by} Q${x(i) + bw},${by} ${x(i) + bw},${by + 4} L${x(i) + bw},${m.t + ih} Z`
+            : `M${x(i)},${m.t + ih} L${x(i)},${by} L${x(i) + bw},${by} L${x(i) + bw},${m.t + ih} Z`
           return (
             <g key={d.date}
               onMouseEnter={() => setHover(d)} onMouseLeave={() => setHover(null)}>
               {/* hit target larger than the mark */}
               <rect x={x(i) - 2} y={m.t} width={bw + 4} height={ih} fill="transparent" />
-              <path d={`M${x(i)},${m.t + ih} L${x(i)},${by + 4} Q${x(i)},${by} ${x(i) + 4},${by} L${x(i) + bw - 4},${by} Q${x(i) + bw},${by} ${x(i) + bw},${by + 4} L${x(i) + bw},${m.t + ih} Z`}
+              <path d={barPath}
                 fill={isRec ? 'var(--series-1)' : 'color-mix(in oklab, var(--series-1) 55%, var(--surface))'}
                 stroke={hover?.date === d.date ? 'var(--ink)' : 'none'} strokeWidth={1} />
               {(isMin || isRec) && (

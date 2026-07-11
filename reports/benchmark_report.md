@@ -15,7 +15,7 @@ Each benchmark from `benchmark_prompts.json` is executed end-to-end; every
 
 > **Request:** “I need to get from home to Tokyo next month, what do you suggest?”
 
-Candidates evaluated: **2** · response time: 2.4ms · window: 2025-09-01 → 2025-09-30
+Candidates evaluated: **2** · response time: 3.8ms · window: 2025-09-01 → 2025-09-30
 
 | Expected behavior | Verified | Evidence |
 |---|:---:|---|
@@ -68,7 +68,7 @@ _Noted (“aisle seat, front of cabin”): seat maps not in dataset — acknowle
 
 > **Request:** “Find me the best way to do a London + Paris + Rome trip in one journey.”
 
-Candidates evaluated: **12** · response time: 34.5ms · window: 2025-08-08 → 2025-08-22
+Candidates evaluated: **12** · response time: 65.5ms · window: 2025-08-08 → 2025-08-22
 
 | Expected behavior | Verified | Evidence |
 |---|:---:|---|
@@ -127,7 +127,7 @@ _Scoring weights used for you: price 52%, convenience 14%, time 19%, reliability
 
 > **Request:** “Cheapest option to Bali, I'm flexible on dates over the summer.”
 
-Candidates evaluated: **2** · response time: 0.5ms · window: 2025-08-04 → 2025-08-31
+Candidates evaluated: **2** · response time: 0.9ms · window: 2025-08-04 → 2025-08-31
 
 | Expected behavior | Verified | Evidence |
 |---|:---:|---|
@@ -182,7 +182,7 @@ _Scoring weights used for you: price 42%, convenience 27%, time 15%, reliability
 
 > **Request:** “Book me something to New York for a Tuesday meeting, back Thursday.”
 
-Candidates evaluated: **56** · response time: 4.5ms · window: 2025-08-01 → 2025-11-14
+Candidates evaluated: **56** · response time: 8.0ms · window: 2025-08-01 → 2025-11-14
 
 | Expected behavior | Verified | Evidence |
 |---|:---:|---|
@@ -239,7 +239,7 @@ _Scoring weights used for you: price 44%, convenience 20%, time 16%, reliability
 
 > **Request:** “I want to visit Sydney around the holidays — what should I expect?”
 
-Candidates evaluated: **1** · response time: 0.6ms · window: 2025-12-11 → 2026-01-09
+Candidates evaluated: **1** · response time: 1.4ms · window: 2025-12-11 → 2026-01-09
 
 | Expected behavior | Verified | Evidence |
 |---|:---:|---|
@@ -301,7 +301,7 @@ _Noted (“spa lounge, chauffeur transfer, the works”): ground services not in
 
 > **Request:** “Plan a multi-city Asia trip, I have about three weeks of flexibility.”
 
-Candidates evaluated: **20** · response time: 121.8ms · window: 2025-08-08 → 2025-10-30
+Candidates evaluated: **20** · response time: 236.2ms · window: 2025-08-08 → 2025-10-30
 
 | Expected behavior | Verified | Evidence |
 |---|:---:|---|

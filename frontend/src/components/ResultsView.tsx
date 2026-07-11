@@ -1,9 +1,10 @@
 import { marked } from 'marked'
-import { AlertOctagon, Brain, CalendarDays, ShieldCheck, SlidersHorizontal, Sparkles, TrendingUp, Wrench } from 'lucide-react'
+import { AlertOctagon, Brain, CalendarDays, SearchX, ShieldCheck, SlidersHorizontal, Sparkles, TrendingUp, Wrench } from 'lucide-react'
 import type { RecommendResponse } from '../types'
 import TradeoffStrip from './TradeoffStrip'
 import PriceCalendar from './PriceCalendar'
 import RouteMap from './RouteMap'
+import CompareTable from './CompareTable'
 import ResultCard from './ResultCard'
 import RefineBar from './RefineBar'
 import { AIRPORTS } from '../airports'
@@ -111,12 +112,30 @@ export default function ResultsView({ r, onRefine, refining }: {
             </div>
           )}
 
+          <CompareTable options={r.recommendations} party={i.party_size} />
+
           <div className="space-y-3">
             {r.recommendations.map((o, idx) => (
-              <ResultCard key={o.key} option={o} rank={idx + 1} party={i.party_size} weights={r.weights} />
+              <ResultCard key={o.key} option={o} rank={idx + 1} party={i.party_size} weights={r.weights}
+                top={r.recommendations[0]} />
             ))}
           </div>
         </>
+      )}
+
+      {r.recommendations.length === 0 && (
+        <div className="card p-10 text-center rise-in-1">
+          <div className="mx-auto w-10 h-10 rounded-full flex items-center justify-center mb-3"
+            style={{ background: 'rgba(240,138,92,0.12)' }}>
+            <SearchX size={18} style={{ color: 'var(--status-serious)' }} />
+          </div>
+          <div className="font-semibold mb-1">No itinerary could be built for this request</div>
+          <div className="muted text-sm max-w-md mx-auto leading-relaxed">
+            Even after relaxing constraints{r.relaxations.length > 0 ? ` (${r.relaxations.length} attempted, above)` : ''},
+            the dataset has no matching service. Try a wider date range, a different destination,
+            or check the full reasoning narrative below for exactly what was ruled out and why.
+          </div>
+        </div>
       )}
 
       <details className="card p-4 rise-in-3" open={r.recommendations.length === 0}>

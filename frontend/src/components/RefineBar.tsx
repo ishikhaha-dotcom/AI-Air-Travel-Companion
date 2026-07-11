@@ -15,12 +15,16 @@ export default function RefineBar({ r, onRefine, refining }: {
 
   return (
     <div className="card p-3 space-y-2 rise-in-2">
+      <span className="sr-only" role="status" aria-live="polite">
+        {refining ? 'Applying refinement…' : r.refinement ? `Refinement applied: ${r.refinement.followup}` : ''}
+      </span>
       <div className="flex items-center gap-2.5">
         <Wand2 size={15} className="shrink-0" style={{ color: 'var(--accent)' }} />
         <input
           value={text} onChange={e => setText(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && go(text)}
           placeholder="Refine this plan — “make it cheaper”, “no redeyes”, “under $900”…"
+          aria-label="Refine this plan"
           className="input flex-1 px-3 py-2 text-sm"
         />
         <button onClick={() => go(text)} disabled={refining || !text.trim()}

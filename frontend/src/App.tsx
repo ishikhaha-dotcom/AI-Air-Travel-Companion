@@ -18,7 +18,7 @@ function LoadingSkeleton() {
         <div className="skeleton h-56" />
       </div>
       <div className="skeleton h-40" />
-      <div className="text-center muted text-sm animate-pulse pt-1">
+      <div className="text-center muted text-sm animate-pulse pt-1" role="status" aria-live="polite">
         Searching 50,000 itineraries — routing, scoring, explaining…
       </div>
     </div>

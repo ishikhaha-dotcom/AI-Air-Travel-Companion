@@ -4,6 +4,23 @@ import { fmtDuration, fmtMoney } from '../airports'
 import { featureLabel, FEATURE_COLORS } from '../labels'
 import FitRing from './FitRing'
 
+function DeltaVsTop({ option, top, party }: { option: OptionJson; top: OptionJson; party: number }) {
+  const price = party > 1 ? option.total_price_party : option.total_price_pp
+  const topPrice = party > 1 ? top.total_price_party : top.total_price_pp
+  const priceDelta = price - topPrice
+  const timeDelta = option.total_duration_minutes - top.total_duration_minutes
+  const fitDelta = option.fit_score - top.fit_score
+  if (Math.abs(priceDelta) < 1 && Math.abs(timeDelta) < 15 && Math.abs(fitDelta) < 1) return null
+  return (
+    <div className="text-[10.5px] muted tabular mt-1" title="Compared to the #1 recommended pick">
+      vs #1:{' '}
+      {Math.abs(priceDelta) >= 1 && <span>{priceDelta > 0 ? '+' : ''}{fmtMoney(priceDelta)} </span>}
+      {Math.abs(timeDelta) >= 15 && <span>· {timeDelta > 0 ? '+' : '−'}{fmtDuration(Math.abs(timeDelta))} </span>}
+      {Math.abs(fitDelta) >= 1 && <span>· fit {fitDelta > 0 ? '+' : ''}{fitDelta.toFixed(0)}</span>}
+    </div>
+  )
+}
+
 const FEATURE_ORDER = ['price', 'time', 'convenience', 'reliability', 'preffit']
 
 function badgeStyle(b: string): { background: string; color: string } {
@@ -86,11 +103,11 @@ function LegTimeline({ leg }: { leg: LegJson }) {
   )
 }
 
-export default function ResultCard({ option, rank, party, weights }: {
-  option: OptionJson; rank: number; party: number; weights: Record<string, number>
+export default function ResultCard({ option, rank, party, weights, top }: {
+  option: OptionJson; rank: number; party: number; weights: Record<string, number>; top?: OptionJson
 }) {
   return (
-    <div className="card p-4 rise-in-2"
+    <div id={`option-${option.key}`} className="card p-4 rise-in-2 transition-shadow hover:shadow-[0_4px_24px_rgba(0,0,0,0.25)] scroll-mt-4"
       style={rank === 1
         ? { borderColor: 'rgba(79,143,247,0.5)', background: 'linear-gradient(180deg, rgba(79,143,247,0.05), transparent 40%)' }
         : undefined}>
@@ -116,6 +133,7 @@ export default function ResultCard({ option, rank, party, weights }: {
               {party > 1 && (
                 <div className="muted text-[11px] tabular mt-1">{fmtMoney(option.total_price_pp)} / person</div>
               )}
+              {top && rank > 1 && <DeltaVsTop option={option} top={top} party={party} />}
             </div>
             <FitRing score={option.fit_score} size={54} />
           </div>
