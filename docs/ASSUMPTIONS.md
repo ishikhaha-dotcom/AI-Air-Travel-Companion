@@ -1,0 +1,18 @@
+# Assumptions Register
+
+Documented per the hackathon FAQ ("individuals may make reasonable assumptions where needed,
+but they should clearly document those assumptions").
+
+| # | Assumption | Rationale / evidence |
+|---|-----------|----------------------|
+| 1 | **Simulated travel clock** `TRAVEL_SIM_TODAY=2025-08-01` (configurable). All relative dates ("next month", "the holidays") resolve against it. | The dataset's departures span 2025-01-01→2026-07-01 — entirely historical at judging time. The anchor was *validated against the data*: under it, every benchmark B01–B06 has live inventory in its natural window (e.g. "next month" = Sep 2025, where CPT→NRT has 5 itineraries; "the holidays" = Dec 2025, where LIS→SYD has service). |
+| 2 | **Prices are per-person, per-itinerary, USD.** Party cost = price × party size. | `currency` is USD on all 50,000 rows; no per-passenger pricing fields exist. |
+| 3 | **`layover_minutes` is the TOTAL layover across stops** (2-stop rows carry two `layover_airports` but a single `layover_minutes` value). The user's `max_layover_minutes` cap is applied to this total — the stricter, traveler-friendly reading. | Verified in the data: e.g. a 2-stop row with `layover_airports=JFK;HKG` has one `layover_minutes=351`. |
+| 4 | **`seats_available` (1–9) is bookable inventory** — a hard availability floor (party of 3 ⇒ ≥3 seats) and a scarcity signal (≤3 ⇒ alert). | Field semantics mirror GDS availability counts, which cap at 9. |
+| 5 | **Self-composed connections** (two separate tickets through a hub) are allowed when published itineraries can't serve a request: same-airport transfer, 90 min–26 h buffer (overnight stopovers permitted), always labeled "self-transfer" and convenience-penalized. The layover cap applies to *in-ticket* layovers; a separate-ticket stopover is a narrated choice, not a hidden layover. | The dataset is time-sparse: e.g. MEL→JFK and JFK→MEL published fares never align for a Tue–Thu round trip. Without composition, honest requests would return nothing. |
+| 6 | **One airport per city**, fixed mapping (Tokyo=NRT, New York=JFK, Bali=DPS, London=LHR, Paris=CDG, Rome=FCO, …). | The dataset contains exactly one airport per metro. |
+| 7 | **Time-of-day preferences use airport-local time** via an embedded IATA→IANA timezone table for the 35 airports (red-eye = local departure 22:00–05:59; "arrive before the Tuesday meeting" = 09:00 destination time). | `departure_utc`/`arrival_utc` are UTC; local semantics are what travelers mean. |
+| 8 | **Geographically odd synthetic routings** (e.g. MAA→JFK→HKG→IST as one itinerary) are treated as offered products, not data errors. | They are internally consistent (times, durations, prices). |
+| 9 | **Raw-history signals outrank structured columns when they conflict** (behavioral evidence beats declared fields), and every such conflict is flagged to the user rather than silently resolved. | The dataset plants deliberate contradictions (U06: age 66 vs "broke student") — the challenge dimension is inference from messy data. |
+| 10 | **Seat/ground-service wishes** ("aisle seat", "chauffeur transfer") are acknowledged in the narrative but not optimized — no seat-map or ancillary data exists in the dataset. | Honest scope: acknowledged, never faked. |
+| 11 | **Multi-city stays default to 2–5 days per city**, auto-extending up to 21 days when the sparse schedule offers no onward flight (the extension is visible in the resulting dates). Open-ended trips target the stated trip length (+7 days tolerance). | Balance between realistic city stays and the dataset's route/month gaps. |
