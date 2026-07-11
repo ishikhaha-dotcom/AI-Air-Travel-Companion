@@ -27,8 +27,12 @@ uvicorn app.main:app --reload --port 8000
 cd ../frontend && npm install && npm run dev   # Vite on :5173, proxies /api → :8000
 ```
 
-Config via env vars: `TRAVEL_SIM_TODAY` (default `2025-08-01`), `LLM_MODE` (`off`|`assist`, default `off`),
+Config via env vars: `TRAVEL_SIM_TODAY` (default `2025-08-01`), `LLM_MODE` (`off`|`assist`;
+**unset = auto-detect**: probes Ollama at startup and enables assist if found),
 `LLM_BASE_URL`/`LLM_MODEL`/`LLM_API_KEY` (OpenAI-compatible; e.g., Ollama `http://localhost:11434/v1`).
+
+Production-style serving (what the demo uses): `npm run build` in `frontend/`, then FastAPI
+at :8000 serves the built UI — no Vite needed.
 
 ## Phase status
 
@@ -40,6 +44,7 @@ Config via env vars: `TRAVEL_SIM_TODAY` (default `2025-08-01`), `LLM_MODE` (`off
 | P3 | FastAPI + React UI | ✅ done | UI built (112KB gz) & served by FastAPI at :8000; /api/* endpoints verified E2E incl. live benchmark runs |
 | P4 | Optional LLM adapter | ✅ done | `LLM_MODE=assist` with no LLM server degrades gracefully (verified); number-integrity check on polish; intent gap-fill validated against dataset airports |
 | P5 | Deliverables (README, assumptions, deck outline, demo script, solution summary) | ✅ done | README.md, docs/ASSUMPTIONS.md, docs/ARCHITECTURE.md, deliverables/* all written; run.ps1 one-command launcher |
+| P6 | Winning-plan upgrade: UI overhaul, AI-story flip, conversational refinement, final deck | ✅ done | pytest 38/38 (both LLM modes) · 42/42 benchmarks · deck.pdf/.pptx exported · full plan + status in `docs/WINNING_PLAN.md` |
 
 ## Done so far (chronological)
 
@@ -63,6 +68,44 @@ Config via env vars: `TRAVEL_SIM_TODAY` (default `2025-08-01`), `LLM_MODE` (`off
   number-integrity check) — verified graceful fallback with no LLM server. All deliverable
   docs written (README, ASSUMPTIONS, ARCHITECTURE, solution summary, deck outline, timed demo
   script, run.ps1). Final verify: pytest 26/26 · harness 42/42 · live HTTP checks 200.
+- **2026-07-11 (session 2)** P6 complete — audited the project against the toolkit's judging
+  criteria (`docs/WINNING_PLAN.md` has the full gap analysis + status header), then:
+  - **UI overhaul** (the old UI read as a debug tool): design system rewrite in
+    `frontend/src/index.css` (Inter via @fontsource, elevation layers, sky→indigo accent
+    gradient, motion/skeleton keyframes); all emoji icons replaced with **lucide-react**;
+    new `src/labels.ts` (display names — fixes the "Preffit" key leak) and
+    `src/components/FitRing.tsx` (animated 0–100 fit donut). Rebuilt components: PersonaRail
+    (purpose-colored avatars, legend footer), ProfilePanel (chips grouped hard/strong/soft,
+    contradiction callout, quote-styled raw history), TripConsole (benchmark chip grid,
+    spinner), ResultCard (airline-style per-leg timeline with stop dots + fit ring),
+    ResultsView (icon banners, weight bars w/ proper labels), TradeoffStrip (**collapses the
+    three summary tiles into one card with "also the cheapest/fastest" badges when one
+    option wins every axis**), RouteMap (graticule, brighter land, glow + dash-draw animated
+    arcs), BenchmarkTab (42/42 trophy stat strip), PriceCalendar (header polish), App
+    (wordmark header, LLM status chip, loading skeleton, refine wiring).
+  - **AI story flip**: `config.llm_mode()` now auto-detects Ollama when `LLM_MODE` is unset
+    (`llm_live()` cached probe); `/api/meta` exposes `llm_model`/`llm_live`; header chip
+    reads "AI: llama3.1 · guarded" or "AI: deterministic engine" — never "LLM: off".
+    Narrative section shows "polished by AI · numbers verified" badge when polish ran.
+  - **Conversational refinement** (new judged-demo centerpiece): `POST /api/refine`
+    {user_id, query, followup} → `app/nlu/refine_rules.py` parses the follow-up
+    (rules lexicon: cheaper/faster/comfort, budget caps "under $900", no-redeyes,
+    direct-only, cabin, layover caps, date shifts, dayparts; guarded LLM fallback for odd
+    phrasings) into a `RefinePatch`; `service.recommend()` gained patch hooks —
+    profile-pref overrides (avoid_redeye/cabin/layover/daypart as hard "refinement"-sourced
+    prefs), intent tweaks (emphasis, window shift), and post-search filters that **never
+    dead-end** (unsatisfiable filter → kept results + honest note in `applied`). Response
+    carries `refinement: {followup, applied}`; UI `RefineBar.tsx` shows suggestion chips +
+    applied-diff chips. 12 new tests in `backend/tests/test_refine.py`.
+  - **Deliverables built**: `deliverables/deck.md` (Marp, dark theme matching app) exported
+    to `deck.pdf` + `deck.pptx` (`npx @marp-team/marp-cli deck.md --pdf --allow-local-files`);
+    fresh 2x screenshots in `deliverables/assets/`; `demo_video_script.md` rewritten with a
+    refinement beat (4:40 timed table); `solution_summary.md` + `README.md` refreshed;
+    `deliverables/SUBMISSION_CHECKLIST.md` added.
+  - **Final verify**: pytest **38/38** under `LLM_MODE=off` AND `LLM_MODE=assist` with no
+    Ollama running (graceful-fallback proof) · harness **42/42** · `npm run build` clean ·
+    every UI surface screenshot-verified in a real browser (incl. live refine round-trip:
+    B01 + "make it cheaper" → fit 77→81, applied chip rendered).
 
 ## Decisions log (deviations/refinements vs blueprint — keep appending)
 
@@ -76,6 +119,10 @@ Config via env vars: `TRAVEL_SIM_TODAY` (default `2025-08-01`), `LLM_MODE` (`off
 | D6 | Multi-city stay windows are adaptive: 2–5 days preferred, auto-extends to 21 days when a leg finds zero service (`_extend` recursion in multicity.py) | Route/month gaps kill rigid chains (B02's CDG→FCO only flies Jan/Feb 2026) |
 | D7 | Relaxation ladder order: widen-by-flex → force self-transfer composition (pattern kept) → drop weekday pattern → layover ×1.5/×2 → widen +30d → nearest-service-month | Preserves the user's strongest stated constraint (meeting day) longest |
 | D8 | `_why` has evidence fallbacks (closest-cabin, budget-priority, layover-pain, carry-on/self-transfer synergy) | Relaxed picks (B05: no First, no direct) still need ≥2 evidence-cited reasons incl. raw history |
+| D9 | Refinement = **patch, not re-prompt**: follow-ups re-parse the ORIGINAL query then apply a `RefinePatch` (pref overrides + intent tweaks + post-filters). Refines don't stack — each applies to the base query | Deterministic, testable, and the search core stays untouched; pref overrides flow through existing filters/scoring/why-citations for free (fuse() builds a fresh profile per request, so in-place override is leak-safe) |
+| D10 | Refine post-filters (budget cap / direct-only / no-redeye) never return empty: an unsatisfiable filter is skipped with an honest note appended to `refinement.applied` | A refine must never dead-end on stage; honesty-over-silence matches the relaxation-ladder philosophy |
+| D11 | `LLM_MODE` unset = auto-detect (cached 0.5s probe of `{LLM_BASE_URL}/models`); explicit `off`/`assist` still wins. UI copy says "AI: deterministic engine", never "LLM: off" | Judging optics at an AI hackathon: assist mode lights up when Ollama is present, zero config; benchmarks/tests stay deterministic when it isn't |
+| D12 | UI: bare cabin word "first" is NOT parsed as First cabin in refinements (requires "first class"); backend keys never render raw (display-name map in `src/labels.ts`) | "make the first one cheaper" must not switch cabins; "Preffit" leaked to the weights panel pre-P6 |
 
 ## Conventions
 
@@ -88,20 +135,26 @@ Config via env vars: `TRAVEL_SIM_TODAY` (default `2025-08-01`), `LLM_MODE` (`off
 
 ## Next steps (remaining work is submission logistics + optional polish)
 
-**All build phases P0–P5 are COMPLETE.** Verified state: pytest 26/26 · benchmark harness
-42/42 · UI built and served at http://localhost:8000 (start via `.\run.ps1` or
-`python -m uvicorn app.main:app --port 8000` from `backend/`).
+**All build phases P0–P6 are COMPLETE.** Verified state: pytest 38/38 (both LLM modes) ·
+benchmark harness 42/42 · UI redesigned, built and served at http://localhost:8000 (start via
+`.\run.ps1` or `python -m uvicorn app.main:app --port 8000` from `backend/`). The deck is
+already exported (`deliverables/deck.pdf` / `.pptx`); regenerate after any UI change with
+fresh screenshots into `deliverables/assets/` then
+`npx @marp-team/marp-cli deck.md --pdf --allow-local-files -o deck.pdf` (and `--pptx`).
 
-Remaining for the participant (human tasks):
-1. Record the demo video following `deliverables/demo_video_script.md` (app must be running).
-2. Build the slide deck from `deliverables/deck_outline.md` (take screenshots from the live UI).
-3. Assemble the OneDrive folder: deck, video, `deliverables/solution_summary.md`, code (this
-   repo), `README.md`, `reports/benchmark_report.md`; set permissions to "Everyone can view";
+Remaining for the participant (human tasks — see `deliverables/SUBMISSION_CHECKLIST.md`):
+1. Record the demo video following `deliverables/demo_video_script.md` (timed 4:40 click-path;
+   includes the refinement beat). App must be running; hard-refresh first.
+2. Optional but recommended: `ollama pull llama3.1:8b` + Ollama running, so the header shows
+   "AI: llama3.1 · guarded" on camera (auto-detected; no env var needed).
+3. Fresh-clone dry run of the README quick start, then assemble the OneDrive folder
+   (deck.pdf/pptx, video, solution summary, repo, benchmark report), set "Everyone can view",
    email the link to careers@expediagroup.com.
 
 Optional polish if time remains (in value order):
-- Install Ollama + `llama3.1:8b` and demo `LLM_MODE=assist` (narrative polish) as a bonus beat.
 - Add a small "compare two travelers side-by-side" view (strong demo moment, ~2h).
+- Phase 2.3 of `docs/WINNING_PLAN.md` (embedding-based semantic evidence matching) —
+  intentionally skipped as optional.
 - Extract-LLM path (`app/profile/extract_llm.py`) mirroring extract_rules output schema.
 
 ## Known risks / gotchas for the next agent
@@ -114,3 +167,10 @@ Optional polish if time remains (in value order):
   connections rather than return empty.
 - `seats_available` ∈ 1..9 — party-size filtering (U03 = 3 people) is a judged behavior; don't drop it.
 - Benchmark B05 (LIS→SYD) MUST end in a narrated relaxation, not an error and not silence.
+- The Ollama probe result is cached for the process lifetime (`config._llm_probe_cache`) —
+  starting/stopping Ollama mid-demo won't flip the header chip until uvicorn restarts.
+- FastAPI serves `frontend/dist/` — after any frontend change run `npm run build`, or the
+  browser keeps getting the old bundle (Vite dev mode on :5173 is only for development).
+- Refines are independent (base query + one follow-up), not cumulative — the demo script
+  phrases this as "it never forgets what you asked first"; don't demo two stacked refines
+  expecting both to apply.

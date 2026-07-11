@@ -10,7 +10,8 @@ receipts — quoting the traveler's own history back as evidence.
 
 **Proof up front:** `reports/benchmark_report.md` — all 6 judge benchmarks (B01–B06) pass
 **42/42 expected behaviors**, verified programmatically, fully deterministic (no LLM needed),
-every response under 0.5 s.
+every response under 0.5 s. Plus a **conversational refinement loop**: "make it cheaper",
+"no redeyes", "under $900" patch the plan and re-run it, with every change explained.
 
 ## Quick start
 
@@ -21,7 +22,7 @@ Prereqs: Python 3.12+ (tested on 3.14) and Node 18+ (tested on 24).
 cd backend
 pip install -r requirements.txt
 python -m app.data.loader            # data QA smoke test
-python -m pytest tests -q            # 26 tests
+python -m pytest tests -q            # 38 tests
 python -m benchmark.run_benchmarks   # regenerates reports/benchmark_report.md (42/42)
 
 # 2. frontend (one-time build; FastAPI serves it)
@@ -42,12 +43,15 @@ Dev mode (hot reload): `uvicorn app.main:app --reload --port 8000` + `npm run de
 1. Click any **benchmark chip** (B01–B06) — it selects the right traveler and runs the judges'
    exact prompt.
 2. Hover the **preference chips** — every inferred preference shows its evidence (a profile
-   column or a verbatim quote from the traveler's raw history).
-3. Try **U06** — WayFinder flags the contradiction between structured age 66 and "broke
+   column or a verbatim quote from the traveler's raw history), grouped hard/strong/soft.
+3. **Refine conversationally** — after any plan, click "make it cheaper" / "no redeyes" or
+   type "under $900", "a week later": the intent is patched, the plan re-runs, and every
+   applied change is chipped. Impossible caps degrade honestly (never zero results).
+4. Try **U06** — WayFinder flags the contradiction between structured age 66 and "broke
    student" in the history, and explains which signal it trusted.
-4. Run **B05** (Sydney at the holidays) — there is *no* direct LIS→SYD flight and no First
+5. Run **B05** (Sydney at the holidays) — there is *no* direct LIS→SYD flight and no First
    cabin on the route; watch the relaxation ladder narrate exactly what it adjusted and why.
-5. Open the **Benchmark self-grading tab** — it runs all six benchmarks live and checks every
+6. Open the **Benchmark self-grading tab** — it runs all six benchmarks live and checks every
    `expected_behavior` from `benchmark_prompts.json` against the actual response.
 
 ## How it works (60-second tour)
@@ -67,8 +71,10 @@ query + user_id
    │        goodness scores, 0–100 fit score with full breakdown
    ├─ Insights: Recommended/Cheapest/Fastest trade-off deltas ($/hr framing),
    │        empirical seasonal premiums, seat-scarcity alerts, date-shift savings
-   └─ Narrative: deterministic, evidence-cited explanation (LLM optionally polishes
-            it — with a number-integrity check that rejects hallucinated figures)
+   ├─ Narrative: deterministic, evidence-cited explanation (LLM optionally polishes
+   │        it — with a number-integrity check that rejects hallucinated figures)
+   └─ Refinement loop: follow-ups ("cheaper", "no redeyes", "under $900") parse to
+            an intent patch → re-plan → applied changes surfaced as chips
 ```
 
 Full design: [`docs/BLUEPRINT.md`](docs/BLUEPRINT.md) ·
@@ -82,14 +88,17 @@ a simulated clock, `TRAVEL_SIM_TODAY` (default **2025-08-01** — validated so e
 has a demonstrable window). All relative dates ("next month", "the holidays") resolve against
 it. The UI shows the clock in the header.
 
-## Optional LLM mode
+## AI assist mode (auto-detected)
 
-`LLM_MODE=off` (default): 100% deterministic — all benchmarks pass with zero AI-service
-dependencies. `LLM_MODE=assist`: an OpenAI-compatible endpoint (local **Ollama** by default:
-`LLM_BASE_URL=http://localhost:11434/v1`, `LLM_MODEL=llama3.1:8b`) fills NLU gaps for unusual
-phrasings and polishes narrative prose. Every LLM call falls back to the rules path on any
-error, and polished text is rejected if it contains any number not present in the
-deterministic narrative.
+At startup WayFinder probes for a local **Ollama** endpoint
+(`LLM_BASE_URL=http://localhost:11434/v1`, `LLM_MODEL=llama3.1:8b` — `ollama pull llama3.1:8b`
+to enable). If found, it runs in **assist** mode: the LLM fills NLU gaps for unusual
+phrasings, parses free-form refinement follow-ups the rules lexicon misses, and polishes
+narrative prose — with a number-integrity check that rejects any figure not present in the
+deterministic narrative, and instant fallback to the rules path on any error. If no endpoint
+is found (or `LLM_MODE=off` is set), the header shows "AI: deterministic engine" and the
+entire system — including all 42/42 benchmark behaviors — works identically. Set
+`LLM_MODE=assist|off` to override the auto-detect.
 
 ## Assumptions, limitations, future work
 
@@ -108,10 +117,10 @@ deterministic narrative.
 data/                  the 3 provided hackathon files (originals also kept at repo root)
 backend/app/           pipeline: data / profile / nlu / search / ranking / insights / explain / llm / api
 backend/benchmark/     self-grading harness → reports/benchmark_report.md
-backend/tests/         26 pytest tests (NLU, fusion, constraints, all 6 benchmarks E2E)
+backend/tests/         38 pytest tests (NLU, fusion, constraints, refinement, all 6 benchmarks E2E)
 frontend/              React + TS + Tailwind UI (offline SVG world map, hand-rolled charts)
 docs/                  BLUEPRINT.md · ARCHITECTURE.md · ASSUMPTIONS.md
-deliverables/          solution summary · deck outline · demo video script
+deliverables/          solution summary · deck.md/pdf/pptx · demo video script · UI screenshots
 reports/               benchmark_report.md (generated)
 PROGRESS.md            implementation worklog / AI-agent handoff document
 ```

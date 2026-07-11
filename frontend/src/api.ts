@@ -20,6 +20,15 @@ export async function postRecommend(user_id: string, query: string): Promise<Rec
   return r.json()
 }
 
+export async function postRefine(user_id: string, query: string, followup: string): Promise<RecommendResponse> {
+  const r = await fetch('/api/refine', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ user_id, query, followup }),
+  })
+  if (!r.ok) throw new Error(`refine: ${r.status}`)
+  return r.json()
+}
+
 export async function runBenchmark(id: string): Promise<BenchmarkRun> {
   const r = await fetch(`/api/benchmarks/${id}/run`, { method: 'POST' })
   if (!r.ok) throw new Error(`benchmark ${id}: ${r.status}`)

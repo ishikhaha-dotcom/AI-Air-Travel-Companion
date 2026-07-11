@@ -20,11 +20,11 @@ export default function PriceCalendar({ series, recommendedDate }: {
   const y = (v: number) => m.t + ih * (1 - v / max)
 
   return (
-    <div className="card p-3">
-      <div className="text-xs muted mb-1">
+    <div className="card p-4">
+      <div className="text-[10.5px] font-semibold uppercase tracking-wider muted mb-2">
         Cheapest fare by departure date <span className="tabular">({series.length} dates)</span>
         {hover && (
-          <span className="ml-2" style={{ color: 'var(--ink)' }}>
+          <span className="ml-2 normal-case tracking-normal" style={{ color: 'var(--ink)' }}>
             {hover.date}: <b className="tabular">{fmtMoney(hover.price)}</b>
             {' '}· {hover.stops === 0 ? 'direct' : `${hover.stops} stop(s)`} · fit {hover.fit_score}
           </span>

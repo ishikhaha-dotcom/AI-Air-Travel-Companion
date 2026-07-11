@@ -1,50 +1,86 @@
+import { Check, Plane } from 'lucide-react'
 import type { LegJson, OptionJson } from '../types'
 import { fmtDuration, fmtMoney } from '../airports'
+import { featureLabel, FEATURE_COLORS } from '../labels'
+import FitRing from './FitRing'
 
-const FEATURES: { key: string; label: string; color: string }[] = [
-  { key: 'price', label: 'Price', color: 'var(--series-1)' },
-  { key: 'time', label: 'Time', color: 'var(--series-2)' },
-  { key: 'convenience', label: 'Convenience', color: 'var(--series-3)' },
-  { key: 'reliability', label: 'Reliability', color: 'var(--series-4)' },
-  { key: 'preffit', label: 'Pref-fit', color: 'var(--series-5)' },
-]
+const FEATURE_ORDER = ['price', 'time', 'convenience', 'reliability', 'preffit']
 
-function badgeColor(b: string): string {
-  if (b === 'Best fit') return 'var(--accent)'
-  if (b === 'Cheapest') return 'var(--series-2)'
-  if (b === 'Fastest') return 'var(--series-3)'
-  if (b === 'Direct') return 'var(--status-good)'
-  if (b.startsWith('Only')) return 'var(--status-critical)'
-  if (b === 'Holiday peak' || b === 'High demand' || b === 'Self-transfer') return 'var(--status-warn)'
-  if (b === 'Red-eye') return 'var(--status-serious)'
-  return 'var(--muted)'
+function badgeStyle(b: string): { background: string; color: string } {
+  const mk = (c: string, alpha = 0.15) => ({ background: `color-mix(in oklab, ${c} ${alpha * 100}%, transparent)`, color: c })
+  if (b === 'Best fit') return mk('var(--accent)', 0.18)
+  if (b === 'Cheapest') return mk('var(--series-2)')
+  if (b === 'Fastest') return mk('var(--series-3)')
+  if (b === 'Direct') return mk('var(--status-good)')
+  if (b.startsWith('Only')) return mk('var(--status-critical)')
+  if (b === 'Holiday peak' || b === 'High demand' || b === 'Self-transfer') return mk('var(--status-warn)')
+  if (b === 'Red-eye') return mk('var(--status-serious)')
+  return mk('var(--muted)', 0.2)
 }
 
-function LegRow({ leg }: { leg: LegJson }) {
+/** One leg as an airline-style timeline: times/codes at the ends, duration+stops on the line. */
+function LegTimeline({ leg }: { leg: LegJson }) {
   const f0 = leg.flights[0], fl = leg.flights[leg.flights.length - 1]
-  const vias = [
+  const stops = [
     ...leg.flights.flatMap(f => f.layover_airports),
-    ...(leg.self_transfer ? [`${leg.transfer_airport}*`] : []),
-  ]
+    ...(leg.self_transfer ? [leg.transfer_airport] : []),
+  ].filter((v, i, a) => v && a.indexOf(v) === i)
+  const airlines = [...new Set(leg.flights.map(f => f.airline_name))].join(' + ')
+  const cabins = [...new Set(leg.flights.map(f => f.cabin))].join(' / ')
+
   return (
-    <div className="flex items-center gap-3 text-sm flex-wrap py-1">
-      <div className="tabular">
-        <b>{leg.origin}</b> <span className="ink2">{f0.dep_local.slice(5, 16)}</span>
-      </div>
-      <div className="flex-1 min-w-24 relative h-5">
-        <div className="absolute inset-x-0 top-1/2 border-t hairline" />
-        <div className="absolute inset-x-0 -top-0.5 text-center text-[10px] muted">
-          {fmtDuration(leg.duration_minutes)} · {leg.stops === 0 ? 'direct' : `${leg.stops} stop(s)${vias.length ? ' via ' + vias.join(', ') : ''}`}
-          {leg.stops > 0 && ` · layover ${fmtDuration(leg.layover_total)}`}
+    <div className="py-2.5">
+      <div className="flex items-center gap-4">
+        <div className="w-20 shrink-0">
+          <div className="text-[17px] font-bold tabular leading-none">{f0.dep_local.slice(11, 16)}</div>
+          <div className="text-xs font-semibold mt-1" style={{ color: 'var(--accent)' }}>{leg.origin}</div>
+          <div className="muted text-[10.5px] tabular">{f0.dep_local.slice(5, 10)}</div>
+        </div>
+
+        <div className="flex-1 min-w-28">
+          <div className="text-center muted text-[10.5px] tabular mb-1">
+            {fmtDuration(leg.duration_minutes)}
+            {leg.stops > 0 && ` · layover ${fmtDuration(leg.layover_total)}`}
+          </div>
+          <div className="relative h-4 flex items-center">
+            <div className="absolute inset-x-0 h-px" style={{ background: 'var(--baseline)' }} />
+            <div className="absolute left-0 w-1.5 h-1.5 rounded-full" style={{ background: 'var(--ink-2)' }} />
+            {stops.map((_, i) => (
+              <div key={i} className="absolute w-2 h-2 rounded-full border-2"
+                style={{
+                  left: `${((i + 1) / (stops.length + 1)) * 100}%`,
+                  background: 'var(--surface)', borderColor: 'var(--status-warn)',
+                  transform: 'translateX(-50%)',
+                }} />
+            ))}
+            <Plane size={13} className="absolute" style={{
+              left: stops.length ? '25%' : '50%', transform: 'translate(-50%, 0) rotate(45deg)',
+              color: 'var(--ink-2)', background: 'var(--surface)',
+            }} />
+            <div className="absolute right-0 w-1.5 h-1.5 rounded-full" style={{ background: 'var(--ink-2)' }} />
+          </div>
+          <div className="text-center text-[10.5px] mt-1">
+            {leg.stops === 0
+              ? <span style={{ color: 'var(--status-good)' }}>direct</span>
+              : <span className="muted">{leg.stops} stop{leg.stops > 1 ? 's' : ''}{stops.length ? ` via ${stops.join(', ')}` : ''}</span>}
+          </div>
+        </div>
+
+        <div className="w-20 shrink-0 text-right">
+          <div className="text-[17px] font-bold tabular leading-none">{fl.arr_local.slice(11, 16)}</div>
+          <div className="text-xs font-semibold mt-1" style={{ color: 'var(--accent)' }}>{leg.destination}</div>
+          <div className="muted text-[10.5px] tabular">{fl.arr_local.slice(5, 10)}</div>
         </div>
       </div>
-      <div className="tabular">
-        <b>{leg.destination}</b> <span className="ink2">{fl.arr_local.slice(5, 16)}</span>
-      </div>
-      <div className="muted text-xs">
-        {[...new Set(leg.flights.map(f => f.airline_name))].join(' + ')} · {[...new Set(leg.flights.map(f => f.cabin))].join('/')}
-        {' '}· {leg.seats_min} seats
-        {leg.self_transfer && <span style={{ color: 'var(--status-warn)' }}> · self-transfer {fmtDuration(leg.transfer_minutes)}</span>}
+      <div className="muted text-[11px] mt-1.5 flex items-center gap-1.5 flex-wrap">
+        <span>{airlines}</span>
+        <span>·</span><span>{cabins}</span>
+        <span>·</span><span>{leg.seats_min} seats left</span>
+        {leg.self_transfer && (
+          <span style={{ color: 'var(--status-warn)' }}>
+            · self-transfer at {leg.transfer_airport} ({fmtDuration(leg.transfer_minutes)})
+          </span>
+        )}
       </div>
     </div>
   )
@@ -54,36 +90,46 @@ export default function ResultCard({ option, rank, party, weights }: {
   option: OptionJson; rank: number; party: number; weights: Record<string, number>
 }) {
   return (
-    <div className="card p-3" style={rank === 1 ? { borderColor: 'var(--accent)' } : undefined}>
-      <div className="flex items-start gap-3 flex-wrap">
-        <div className="text-lg font-bold muted">#{rank}</div>
-        <div className="flex-1 min-w-64">
-          <div className="flex gap-1.5 flex-wrap mb-1">
+    <div className="card p-4 rise-in-2"
+      style={rank === 1
+        ? { borderColor: 'rgba(79,143,247,0.5)', background: 'linear-gradient(180deg, rgba(79,143,247,0.05), transparent 40%)' }
+        : undefined}>
+      <div className="flex gap-4 flex-wrap">
+        <div className="flex-1 min-w-72">
+          <div className="flex items-center gap-1.5 flex-wrap mb-1">
+            <span className="muted text-xs font-bold tabular mr-0.5">#{rank}</span>
             {option.badges.map(b => (
-              <span key={b} className="chip" style={{ color: badgeColor(b), borderColor: badgeColor(b) }}>{b}</span>
+              <span key={b} className="badge" style={badgeStyle(b)}>{b}</span>
             ))}
           </div>
           <div className="divide-y" style={{ borderColor: 'var(--border)' }}>
-            {option.legs.map((leg, i) => <LegRow key={i} leg={leg} />)}
+            {option.legs.map((leg, i) => <LegTimeline key={i} leg={leg} />)}
           </div>
         </div>
-        <div className="text-right shrink-0 w-44">
-          <div className="text-2xl font-bold tabular">{fmtMoney(party > 1 ? option.total_price_party : option.total_price_pp)}</div>
-          {party > 1 && <div className="muted text-xs tabular">{fmtMoney(option.total_price_pp)} / person</div>}
-          <div className="text-sm mt-1">
-            fit <b className="tabular" style={{ color: 'var(--accent)' }}>{option.fit_score}</b><span className="muted">/100</span>
+
+        <div className="shrink-0 w-52 flex flex-col items-end gap-2.5 pt-1">
+          <div className="flex items-start gap-3">
+            <div className="text-right">
+              <div className="text-[24px] font-bold tabular leading-none">
+                {fmtMoney(party > 1 ? option.total_price_party : option.total_price_pp)}
+              </div>
+              {party > 1 && (
+                <div className="muted text-[11px] tabular mt-1">{fmtMoney(option.total_price_pp)} / person</div>
+              )}
+            </div>
+            <FitRing score={option.fit_score} size={54} />
           </div>
-          <div className="mt-1.5 space-y-1">
-            {FEATURES.map(f => {
-              const g = option.goodness[f.key] ?? 0
-              const pts = option.breakdown[f.key] ?? 0
-              const wmax = (weights[f.key] ?? 0) * 100
+          <div className="w-full space-y-1.5">
+            {FEATURE_ORDER.filter(k => k in (option.goodness ?? {})).map(k => {
+              const g = option.goodness[k] ?? 0
+              const pts = option.breakdown[k] ?? 0
+              const wmax = (weights[k] ?? 0) * 100
               return (
-                <div key={f.key} className="flex items-center gap-1.5 text-[10px]"
-                  title={`${f.label}: goodness ${(g * 100).toFixed(0)}% × weight ${wmax.toFixed(0)}% = ${pts.toFixed(1)} pts`}>
-                  <span className="w-16 text-left muted">{f.label}</span>
-                  <div className="flex-1 h-1.5 rounded-full" style={{ background: 'var(--grid)' }}>
-                    <div className="h-1.5 rounded-full" style={{ width: `${g * 100}%`, background: f.color }} />
+                <div key={k} className="flex items-center gap-2 text-[10.5px]"
+                  title={`${featureLabel(k)}: goodness ${(g * 100).toFixed(0)}% × weight ${wmax.toFixed(0)}% = ${pts.toFixed(1)} pts`}>
+                  <span className="w-[74px] text-left muted truncate">{featureLabel(k)}</span>
+                  <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--grid)' }}>
+                    <div className="h-1.5 rounded-full" style={{ width: `${g * 100}%`, background: FEATURE_COLORS[k] }} />
                   </div>
                   <span className="tabular w-8 text-right ink2">{pts.toFixed(1)}</span>
                 </div>
@@ -92,16 +138,20 @@ export default function ResultCard({ option, rank, party, weights }: {
           </div>
         </div>
       </div>
+
       {option.why.length > 0 && (
         <details className="mt-2" open={rank === 1}>
-          <summary className="cursor-pointer text-xs font-semibold ink2">
-            Why this one — {option.why.length} evidence-cited reasons
+          <summary className="cursor-pointer text-xs font-semibold ink2 hover:text-[var(--ink)] transition-colors">
+            Why this one — {option.why.length} evidence-cited reason{option.why.length > 1 ? 's' : ''}
           </summary>
-          <div className="mt-1.5 space-y-1">
+          <div className="mt-2 space-y-1.5">
             {option.why.map((w, i) => (
-              <div key={i} className="text-xs">
-                <span className="ink2">✓ {w.reason}</span>{' '}
-                <span className="muted italic">— {w.evidence} ({w.source.replaceAll('_', ' ')})</span>
+              <div key={i} className="text-xs flex gap-2 leading-relaxed">
+                <Check size={13} className="shrink-0 mt-0.5" style={{ color: 'var(--status-good)' }} />
+                <span>
+                  <span className="ink2">{w.reason}</span>{' '}
+                  <span className="muted italic">— {w.evidence} ({w.source.replaceAll('_', ' ')})</span>
+                </span>
               </div>
             ))}
           </div>

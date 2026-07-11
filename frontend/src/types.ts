@@ -1,5 +1,6 @@
 export interface Meta {
-  sim_today: string; llm_mode: string; flights: number; users: number;
+  sim_today: string; llm_mode: string; llm_model: string; llm_live: boolean;
+  flights: number; users: number;
   routes: number; benchmarks: number; qa: string;
 }
 
@@ -69,7 +70,8 @@ export interface RecommendResponse {
   flex_insight: string | null;
   relaxations: { name: string; detail: string; count: number }[];
   route_facts: string[]; filtered_counts: Record<string, number>;
-  narrative: string; elapsed_ms: number; total_candidates: number;
+  narrative: string; llm_polished?: boolean; elapsed_ms: number; total_candidates: number;
+  refinement?: { followup: string; applied: string[] } | null;
 }
 
 export interface Benchmark {

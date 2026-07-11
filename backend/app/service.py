@@ -7,13 +7,16 @@ from __future__ import annotations
 
 import time as _time
 
+from datetime import timedelta
+
 from . import config
 from .data.airports import AIRPORTS
-from .data.models import TravelerProfile, TripIntent, TripOption
+from .data.models import Preference, TravelerProfile, TripIntent, TripOption
 from .explain.narrative import build_narrative, describe_option
 from .insights.seasonal import build_insights
 from .insights.tradeoffs import build_tradeoffs
 from .nlu.intent_rules import parse_intent
+from .nlu.refine_rules import RefinePatch, parse_refinement
 from .profile.fusion import fuse, profile_highlights
 from .ranking.scorer import score_options
 from .search import flexdates
@@ -80,7 +83,56 @@ def _intent_json(i: TripIntent) -> dict:
     }
 
 
-def recommend(user_id: str, query: str, top_n: int | None = None) -> dict:
+def _override_pref(profile: TravelerProfile, key: str, value, evidence: str) -> None:
+    """Replace/insert a preference as a hard, refinement-sourced constraint.
+    fuse() builds a fresh profile per request, so in-place edits never leak."""
+    profile.preferences[:] = [p for p in profile.preferences if p.key != key]
+    profile.preferences.append(Preference(
+        id=f"refine_{key}", key=key, value=value, strength="hard",
+        source="refinement", evidence=evidence, confidence=1.0,
+        note="follow-up refinement"))
+
+
+def _apply_patch(profile: TravelerProfile, intent: TripIntent, patch: RefinePatch,
+                 followup: str) -> None:
+    ev = f'follow-up: "{followup}"'
+    if patch.emphasis:
+        intent.emphasis = patch.emphasis
+    if patch.shift_days:
+        intent.window_start += timedelta(days=patch.shift_days)
+        intent.window_end += timedelta(days=patch.shift_days)
+    if patch.avoid_redeye:
+        _override_pref(profile, "avoid_redeye", True, ev)
+    if patch.cabin:
+        _override_pref(profile, "preferred_cabin", patch.cabin, ev)
+    if patch.max_layover_minutes is not None:
+        _override_pref(profile, "max_layover_minutes", patch.max_layover_minutes, ev)
+    if patch.dep_daypart:
+        _override_pref(profile, "preferred_departure", patch.dep_daypart, ev)
+
+
+def _post_filter(options: list[TripOption], patch: RefinePatch) -> list[TripOption]:
+    """Hard follow-up filters. Each one is skipped (with a note in `applied`)
+    rather than returning an empty result — a refine never dead-ends."""
+    filters = []
+    if patch.budget_cap_pp is not None:
+        filters.append(("budget cap", lambda o: o.total_price_pp <= patch.budget_cap_pp))
+    if patch.direct_only:
+        filters.append(("direct only", lambda o: o.total_stops == 0))
+    if patch.avoid_redeye:
+        filters.append(("red-eye exclusion",
+                        lambda o: not any(f.is_redeye for l in o.legs for f in l.flights)))
+    for name, pred in filters:
+        kept = [o for o in options if pred(o)]
+        if kept:
+            options = kept
+        else:
+            patch.applied.append(f"({name}: no itinerary qualifies — showing closest instead)")
+    return options
+
+
+def recommend(user_id: str, query: str, top_n: int | None = None, *,
+              refine_patch: RefinePatch | None = None, followup: str = "") -> dict:
     t0 = _time.perf_counter()
     ds = get_dataset()
     top_n = top_n or config.TOP_N_RESULTS
@@ -90,6 +142,8 @@ def recommend(user_id: str, query: str, top_n: int | None = None) -> dict:
     if config.llm_mode() == "assist":
         from .nlu.intent_llm import enrich_intent
         intent = enrich_intent(query, intent)  # fills gaps only; never overrides rules
+    if refine_patch is not None:
+        _apply_patch(profile, intent, refine_patch, followup)
 
     if intent.trip_type == "multi_city":
         outcome: SearchOutcome = fixed_multicity(ds, intent, profile)
@@ -97,6 +151,9 @@ def recommend(user_id: str, query: str, top_n: int | None = None) -> dict:
         outcome = open_ended(ds, intent, profile)
     else:
         outcome = search_with_relaxation(ds, intent, profile)
+
+    if refine_patch is not None:
+        outcome.options = _post_filter(outcome.options, refine_patch)
 
     scored, weights, weight_notes = score_options(outcome.options, profile, intent)
 
@@ -147,4 +204,12 @@ def recommend(user_id: str, query: str, top_n: int | None = None) -> dict:
         "llm_polished": llm_polished,
         "elapsed_ms": round((_time.perf_counter() - t0) * 1000, 1),
         "total_candidates": len(scored),
+        "refinement": ({"followup": followup, "applied": refine_patch.applied}
+                       if refine_patch is not None else None),
     }
+
+
+def refine(user_id: str, query: str, followup: str, top_n: int | None = None) -> dict:
+    """Re-plan `query` with a conversational follow-up applied on top."""
+    patch = parse_refinement(followup)
+    return recommend(user_id, query, top_n, refine_patch=patch, followup=followup)

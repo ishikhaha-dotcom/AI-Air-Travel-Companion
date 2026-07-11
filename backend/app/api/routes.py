@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 from .. import config
 from ..profile.fusion import fuse, profile_highlights
-from ..service import recommend
+from ..service import recommend, refine
 from ..state import get_dataset
 from benchmark.run_benchmarks import check_benchmark
 
@@ -19,12 +19,21 @@ class RecommendRequest(BaseModel):
     top_n: int | None = None
 
 
+class RefineRequest(BaseModel):
+    user_id: str
+    query: str      # the original query being refined
+    followup: str   # e.g. "make it cheaper", "no redeyes", "under $900"
+    top_n: int | None = None
+
+
 @router.get("/meta")
 def meta() -> dict:
     ds = get_dataset()
     return {
         "sim_today": config.sim_today().isoformat(),
         "llm_mode": config.llm_mode(),
+        "llm_model": config.LLM_MODEL,
+        "llm_live": config.llm_live(),
         "flights": len(ds.flights),
         "users": len(ds.users),
         "routes": len(ds.by_route),
@@ -81,6 +90,16 @@ def api_recommend(req: RecommendRequest) -> dict:
     if not req.query.strip():
         raise HTTPException(422, "query must not be empty")
     return recommend(req.user_id, req.query, req.top_n)
+
+
+@router.post("/refine")
+def api_refine(req: RefineRequest) -> dict:
+    ds = get_dataset()
+    if req.user_id not in ds.users:
+        raise HTTPException(404, f"unknown user {req.user_id}")
+    if not req.query.strip() or not req.followup.strip():
+        raise HTTPException(422, "query and followup must not be empty")
+    return refine(req.user_id, req.query, req.followup, req.top_n)
 
 
 @router.get("/benchmarks")

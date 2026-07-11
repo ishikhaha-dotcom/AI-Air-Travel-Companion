@@ -32,16 +32,24 @@ that can *explain itself* is conversion and trust.
    Fastest with $/hour framing, empirical seasonal premiums computed from the dataset's own
    medians ("year-end fares run +65% vs shoulder on this route"), seat-scarcity alerts, and
    "shift your dates, save $X" counterfactuals.
-5. **Optional LLM layer** — an OpenAI-compatible endpoint (local Ollama) can fill NLU gaps and
-   polish narratives, guarded by deterministic fallbacks and a number-integrity check that
-   rejects any hallucinated figure. With `LLM_MODE=off` the entire system still works.
+5. **Conversational refinement loop** — after any plan, follow-ups like "make it cheaper",
+   "no redeyes", "under $900", or "a week later" are parsed into an intent patch and the
+   plan re-runs, with every applied change surfaced as a chip. Impossible follow-ups
+   ("under $5") degrade honestly to the closest option — a refine never dead-ends.
+6. **AI-assisted, deterministically guarded** — a local LLM (Ollama, auto-detected at
+   startup) fills NLU gaps, parses unusual follow-up phrasings, and polishes narratives,
+   guarded by deterministic fallbacks and a number-integrity check that rejects any
+   hallucinated figure. With the LLM entirely off, the full system — including all
+   benchmarks — still passes.
 
 **Evidence it works.** A self-grading harness executes all six provided benchmark prompts and
 programmatically verifies every `expected_behavior` from `benchmark_prompts.json`:
-**42/42 behaviors pass**, fully deterministic, each response < 0.5 s (26 unit/E2E tests
-alongside). The prototype is a React web app (persona rail with evidence chips, offline
-world-map routing, price calendar, score-breakdown cards, live benchmark tab) on a FastAPI
-backend.
+**42/42 behaviors pass**, fully deterministic, each response < 0.5 s (38 unit/E2E tests
+alongside, including the refinement loop). The prototype is a polished React web app —
+persona rail with provenance-tagged evidence chips grouped by constraint strength,
+airline-style itinerary cards with animated fit-score rings, offline world-map routing with
+animated great-circle arcs, price calendar, conversational refine bar, and a live benchmark
+self-grading tab — on a FastAPI backend.
 
 **Expected value & impact.** For travelers: recommendations that respect real constraints
 (seats for the whole family, layover caps, school holidays) and explain themselves. For the

@@ -22,14 +22,35 @@ def sim_today() -> date:
 
 
 # ---- LLM (optional layer; system is fully functional with LLM_MODE=off) ----
-def llm_mode() -> str:
-    return os.environ.get("LLM_MODE", "off").lower()  # off | assist
-
-
 LLM_BASE_URL = os.environ.get("LLM_BASE_URL", "http://localhost:11434/v1")  # Ollama default
 LLM_MODEL = os.environ.get("LLM_MODEL", "llama3.1:8b")
 LLM_API_KEY = os.environ.get("LLM_API_KEY", "ollama")
 LLM_TIMEOUT_S = float(os.environ.get("LLM_TIMEOUT_S", "20"))
+
+_llm_probe_cache: bool | None = None
+
+
+def llm_live() -> bool:
+    """One cached probe of the local endpoint (never blocks the pipeline)."""
+    global _llm_probe_cache
+    if _llm_probe_cache is None:
+        try:
+            import httpx
+            r = httpx.get(f"{LLM_BASE_URL.rstrip('/')}/models", timeout=0.5)
+            _llm_probe_cache = r.status_code == 200
+        except Exception:
+            _llm_probe_cache = False
+    return _llm_probe_cache
+
+
+def llm_mode() -> str:
+    """off | assist. Explicit LLM_MODE env wins; otherwise auto-detect a local
+    endpoint so the demo runs AI-assisted when Ollama is up and falls back to
+    the deterministic engine when it isn't (either way, every benchmark passes)."""
+    explicit = os.environ.get("LLM_MODE", "").lower()
+    if explicit in ("off", "assist"):
+        return explicit
+    return "assist" if llm_live() else "off"
 
 # ---- Search tunables ----
 SELF_TRANSFER_MIN_BUFFER_MIN = 90       # composed connections: min transfer time
