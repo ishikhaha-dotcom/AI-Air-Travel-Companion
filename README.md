@@ -1,6 +1,7 @@
 # ◆ WayFinder — AI Air Travel Companion
 
 **Expedia Hackathon · Problem Statement 1 · Solo submission**
+Ishika Sattawan · IIT Roorkee
 
 WayFinder is a personal air-travel strategist that *reads the traveler, not just the query*.
 It fuses each traveler's structured profile with their messy free-text booking history into

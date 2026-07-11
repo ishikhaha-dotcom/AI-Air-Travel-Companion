@@ -1,47 +1,64 @@
-# Presentation Deck Outline (7 slides + demo video slide)
+# Presentation Deck Outline — 7 pages, Expedia dark brand system
 
-> Target: 6–8 slides per toolkit guidance. Visual style: dark theme matching the app;
-> one idea per slide; screenshots from the live UI.
+> Source of truth is `deck.md` (Marp) → exported to `deck.pdf` / `deck.pptx`. This file is a
+> quick-reference summary of that deck's structure and intent — edit `deck.md` first, then
+> resync this outline if the structure changes.
 
-## Slide 1 — Same question, six different right answers
-- Hook: "I want to go to Sydney for the holidays." For U05 the right answer is a Business
-  cabin via Paris at $10k. For U06 it would be two stops and $900. Flight search that ignores
-  who's asking is broken.
-- Problem statement recap (one line) + the three data files we were given.
+**Brand system:** Deep Ebony `#0F1725` background · Brilliant Royal Blue `#4248ED` headers/
+accents · Exquisite Canary Yellow `#FEBF4F` for status/AI/metric tags. Custom HTML/CSS grid
+layouts per slide (Marp `html: true`), not a generic template.
 
-## Slide 2 — The data has traps (we found them)
-- 50,000 itineraries, 35 airports, 1,172 routes — but service is *sparse by month* (MEL↔JFK
-  never pairs for a Tue–Thu round trip).
-- Deliberate contradictions in user histories (age 66 vs "broke student").
-- LIS→SYD has ZERO direct flights while U05 demands direct-only + 90-min layovers + a First
-  cabin that isn't sold on the route.
-- Message: we didn't just read the schema — we let the data shape the architecture.
+## Page 1 — Title & Product Vision
+Asymmetric grid: left column carries the name, hook, byline (Ishika Sattawan · IIT Roorkee),
+and headline stats (50,000 itineraries · 50 travelers · 42/42 behaviors); right column is a
+framed screenshot of the live in-product route map (`assets/ui-b02-map.png`) with a floating
+"● LIVE ROUTE ENGINE" tag — the "premium UI mockup" is the actual product, not a fake mockup.
 
-## Slide 3 — Architecture: deterministic core, optional AI edge
-- The mermaid diagram from docs/ARCHITECTURE.md.
-- Punchline: LLM_MODE=off passes all benchmarks; the LLM only fills gaps and polishes prose
-  (with a number-integrity check). The demo cannot die on stage.
+## Page 2 — The Core Problem Matrix
+Two-column split pane: **User Friction** (one-size search can't parse messy history, silent
+profile-vs-history contradictions, dead-end hard constraints) vs. **Business Impact** (cart
+abandonment, rising support cost, a conversion ceiling generic ranking imposes). Closes on a
+single bridge tag naming WayFinder as the fix.
 
-## Slide 4 — Preference Fusion with receipts
-- Screenshot: U03's chips — party of 3 inferred from "traveling w/ 2 kids", stroller, school
-  holidays; U06's contradiction banner.
-- Every preference carries provenance (structured field vs quoted history) and feeds either a
-  hard filter, a scoring weight, or a narrative citation.
+## Page 3 — The Engine Architecture
+3-card modular grid, one card per pillar: **Preference Fusion Engine** (provenance-tagged
+history mining), **Deterministic Route Core** (permutation × beam search over 50,000
+itineraries), **Transparent Relaxation Ladder** (six documented steps, never a silent dead
+end). A flow strip underneath shows the pipeline order.
 
-## Slide 5 — Optimization that tells you what it did
-- B05 screenshot: route-reality banner (no direct exists), relaxation ladder narration,
-  the $10,161 Business-via-CDG pick with year-end premium quantified.
-- The relaxation ladder + weight-derivation table (small).
+## Page 4 — High-Performance Engineering Stack
+2×2 data-flow block grid: React 19 + TypeScript frontend → FastAPI/Pydantic API layer → the
+**zero-dependency in-memory route graph** (deliberately no pandas/DB — see PROGRESS.md D1;
+sub-500ms on every benchmark) → the optional local-Ollama AI edge, gated by a number-integrity
+check that rejects any hallucinated figure.
 
-## Slide 6 — Graded by the judges' own rubric
-- Screenshot: Benchmark tab, 42/42 green.
-- Table: B01–B06 → candidates, ms, behaviors verified. All deterministic, <0.5 s.
+## Page 5 — Empirical Proof & Validation Matrix
+Massive `42/42` hero number (behaviors verified) with a 4-tile stat row underneath: 6/6
+benchmarks passed, 38/38 tests green, <500ms median response, 2/2 LLM modes verified. Closing
+note covers the live conversational refinement loop as a second, independently-tested proof
+point.
 
-## Slide 7 — Impact & what's next
-- Traveler: constraints respected, expectations set, explanations quoted from their own words.
-- Platform: conversion lift, support deflection, auditable ranking.
-- Roadmap: real NDC/GDS feeds, learning-to-rank from bookings, hotel/car bundling, CO₂-aware
-  scoring.
+## Page 6 — Expected Value & Commercial Impact Matrix
+Clean 2×2 metric grid: Cart Conversion Uplift, Support Ticket Deflection, Regulatory &
+Customer Trust, Retention Signal — each framed as a concrete business KPI for a platform like
+Expedia, grounded in features actually shipped (evidence-cited picks, transparent pricing/
+layover explanations, auditable ranking).
 
-## Slide 8 — Demo video (3–5 min, embedded/linked)
-- Per toolkit: the recorded demo of the working model (script in demo_video_script.md).
+## Page 7 — Engineering Boundaries & Future Roadmap
+Vertical asymmetric layout: a narrow honest checklist of current limitations (synthetic
+dataset, no live booking/fare-class inventory, no seat-map data) beside a wider Now/Next/Later
+timeline (shipped deterministic core + refinement loop → live NDC/GDS feeds + Learning-to-Rank
+→ cross-product travel-clock bundling + CO₂-aware scoring).
+
+## Regenerating after any edit
+```powershell
+cd deliverables
+npx @marp-team/marp-cli deck.md --pdf --allow-local-files --html -o deck.pdf
+npx @marp-team/marp-cli deck.md --pptx --allow-local-files --html -o deck.pptx
+```
+Screenshots referenced by the deck live in `deliverables/assets/` — refresh them from the live
+app (`http://localhost:8000`) if the UI changes before re-exporting.
+
+## Demo video
+Not a deck page — recorded separately per `demo_video_script.md` (3–5 min, timed click-path)
+and submitted alongside the deck per the toolkit's deliverables list.
