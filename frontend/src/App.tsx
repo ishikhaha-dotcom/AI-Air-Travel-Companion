@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Clock3, Database, Navigation, ShieldCheck, Sparkles } from 'lucide-react'
 import { fetchBenchmarks, fetchMeta, fetchProfile, fetchUsers, postRecommend, postRefine } from './api'
 import type { Benchmark, Meta, RecommendResponse, UserProfile, UserSummary } from './types'
-import PersonaRail from './components/PersonaRail'
+import TravelerSwitcher from './components/TravelerSwitcher'
 import ProfilePanel from './components/ProfilePanel'
 import TripConsole from './components/TripConsole'
 import ResultsView from './components/ResultsView'
@@ -38,6 +38,10 @@ export default function App() {
   const [refining, setRefining] = useState(false)
   const [error, setError] = useState('')
   const [tab, setTab] = useState<'plan' | 'bench'>('plan')
+  // Flips true the instant a search fires and stays true for the session —
+  // this is what collapses the B01–B06 template grid into a compact rail
+  // (directive: "the exact second a search is executed").
+  const [hasSearched, setHasSearched] = useState(false)
 
   useEffect(() => {
     fetchMeta().then(setMeta).catch(() => setError('Backend not reachable — start uvicorn on :8000'))
@@ -51,6 +55,7 @@ export default function App() {
 
   async function run(userId: string, q: string) {
     if (!q.trim()) return
+    setHasSearched(true)
     setLoading(true); setError(''); setTab('plan')
     try {
       setResponse(await postRecommend(userId, q))
@@ -102,7 +107,7 @@ export default function App() {
               <Database size={13} /> {meta.flights.toLocaleString()} flights · {meta.routes.toLocaleString()} routes
             </span>
             {meta.llm_mode === 'assist' && meta.llm_live ? (
-              <span className="chip chip-accent"
+              <span className="chip chip-ai"
                 title={`Local ${meta.llm_model} assists parsing & prose — every number is verified against the deterministic engine; any failure falls back instantly`}>
                 <Sparkles size={13} /> AI: {meta.llm_model} · guarded
               </span>
@@ -116,29 +121,33 @@ export default function App() {
         )}
       </header>
 
-      <div className="flex flex-1 min-h-0">
-        <PersonaRail users={users} selected={selected} onSelect={setSelected} benchUsers={benchUsers} />
+      <div className="flex-1 min-h-0 overflow-y-auto">
+        <div className="max-w-[1400px] mx-auto p-4">
+          <div className="flex gap-1.5 text-sm mb-3">
+            {([['plan', 'Plan a trip'], ['bench', 'Benchmark self-grading']] as const).map(([key, label]) => (
+              <button key={key} onClick={() => setTab(key)}
+                className="px-4 py-2 rounded-lg font-medium transition-colors"
+                style={tab === key
+                  ? { background: 'var(--surface-2)', color: 'var(--ink)', border: '1px solid var(--border-strong)' }
+                  : { color: 'var(--muted)', border: '1px solid transparent' }}>
+                {label}
+              </button>
+            ))}
+          </div>
 
-        <main className="flex-1 min-w-0 overflow-y-auto">
-          <div className="max-w-5xl mx-auto p-4 space-y-4">
-            <div className="flex gap-1.5 text-sm">
-              {([['plan', 'Plan a trip'], ['bench', 'Benchmark self-grading']] as const).map(([key, label]) => (
-                <button key={key} onClick={() => setTab(key)}
-                  className="px-4 py-2 rounded-lg font-medium transition-colors"
-                  style={tab === key
-                    ? { background: 'var(--surface-2)', color: 'var(--ink)', border: '1px solid var(--border-strong)' }
-                    : { color: 'var(--muted)', border: '1px solid transparent' }}>
-                  {label}
-                </button>
-              ))}
-            </div>
-
-            {tab === 'plan' ? (
-              <>
+          {tab === 'plan' ? (
+            /* TWO-PANE WORKSPACE — left: traveler dossier (fixed ~1fr), right:
+               active planner + results (~2.5fr), stacking on narrow viewports. */
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_2.5fr] gap-4 items-start">
+              <div className="space-y-3 lg:sticky lg:top-4">
+                <TravelerSwitcher users={users} selected={selected} onSelect={setSelected} benchUsers={benchUsers} />
                 {profile && <ProfilePanel profile={profile} />}
+              </div>
+
+              <div className="space-y-4 min-w-0">
                 <TripConsole
                   query={query} setQuery={setQuery} benchmarks={benchmarks}
-                  loading={loading}
+                  loading={loading} compact={hasSearched}
                   onRun={(q) => run(selected, q)}
                   onBenchmark={(b) => { setSelected(b.user_id); setQuery(b.request); run(b.user_id, b.request) }}
                 />
@@ -161,12 +170,12 @@ export default function App() {
                     </div>
                   </div>
                 )}
-              </>
-            ) : (
-              <BenchmarkTab benchmarks={benchmarks} />
-            )}
-          </div>
-        </main>
+              </div>
+            </div>
+          ) : (
+            <BenchmarkTab benchmarks={benchmarks} />
+          )}
+        </div>
       </div>
     </div>
   )

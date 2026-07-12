@@ -5,26 +5,34 @@
 @import "@fontsource/inter/700.css";
 @import "@fontsource/inter/800.css";
 
-/* WayFinder design system — committed dark theme.
-   Elevation: page → surface → raised → overlay. One accent gradient (sky→indigo)
-   reserved for primary actions + the recommended pick. Series palette per dataviz. */
+/* WayFinder design system — Expedia dark brand: Deep Ebony / Brilliant Royal
+   Blue / Exquisite Canary Yellow. Elevation: page → surface → raised → overlay.
+   Royal Blue is reserved for headers/accents/primary actions; Canary is
+   reserved for status, AI, and metric tags — the two never trade places, so
+   "AI is on" and "an error occurred" stay visually distinct. Series palette
+   (feature score bars, route-map legs) is its own five-hue set per dataviz
+   rules and is deliberately NOT repainted to brand colors. */
 :root {
-  --page: #0b0c0e;
-  --surface: #131519;
-  --surface-2: #1b1e24;
-  --surface-3: #232730;
+  --page: #0F1725;       /* Deep Ebony */
+  --surface: #141C2E;
+  --surface-2: #1B2438;
+  --surface-3: #232D46;
   --ink: #f4f5f7;
   --ink-2: #b8bcc6;
   --muted: #7d828e;
-  --grid: #262a32;
-  --baseline: #343945;
+  --grid: #29314a;
+  --baseline: #37405c;
   --border: rgba(255, 255, 255, 0.08);
   --border-strong: rgba(255, 255, 255, 0.14);
 
-  --accent: #4f8ff7;
-  --accent-2: #6366f1;
-  --accent-grad: linear-gradient(135deg, #38bdf8 0%, #6366f1 100%);
-  --accent-soft: rgba(79, 143, 247, 0.12);
+  --accent: #4248ED;     /* Brilliant Royal Blue */
+  --accent-2: #6A6FF2;
+  --accent-grad: linear-gradient(135deg, #4248ED 0%, #6A6FF2 100%);
+  --accent-soft: rgba(66, 72, 237, 0.14);
+
+  --canary: #FEBF4F;     /* Exquisite Canary Yellow — status / AI / metric tags */
+  --canary-soft: rgba(254, 191, 79, 0.14);
+  --canary-border: rgba(254, 191, 79, 0.38);
 
   --series-1: #4f8ff7; /* blue   — price */
   --series-2: #2db98c; /* green  — time */
@@ -33,7 +41,7 @@
   --series-5: #a78bfa; /* violet — preference fit */
 
   --status-good: #2dd47f;
-  --status-warn: #f5b83d;
+  --status-warn: #FEBF4F;
   --status-serious: #f08a5c;
   --status-critical: #ef5350;
 
@@ -76,9 +84,14 @@ body {
   line-height: 1.35;
 }
 .chip-accent {
-  border-color: rgba(79, 143, 247, 0.35);
+  border-color: var(--accent-2);
   background: var(--accent-soft);
-  color: var(--accent);
+  color: var(--accent-2);
+}
+.chip-ai {
+  border-color: var(--canary-border);
+  background: var(--canary-soft);
+  color: var(--canary);
 }
 .badge {
   display: inline-flex; align-items: center; gap: 4px;

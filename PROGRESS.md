@@ -46,6 +46,7 @@ at :8000 serves the built UI — no Vite needed.
 | P5 | Deliverables (README, assumptions, deck outline, demo script, solution summary) | ✅ done | README.md, docs/ASSUMPTIONS.md, docs/ARCHITECTURE.md, deliverables/* all written; run.ps1 one-command launcher |
 | P6 | Winning-plan upgrade: UI overhaul, AI-story flip, conversational refinement, final deck | ✅ done | pytest 38/38 (both LLM modes) · 42/42 benchmarks · deck.pdf/.pptx exported · full plan + status in `docs/WINNING_PLAN.md` |
 | P7 | UI/results polish pass: true great-circle map, compare table, a11y, bug fixes | ✅ done | frontend-only, zero backend risk; pytest 38/38 + benchmarks 42/42 unchanged; `npm run build` clean |
+| P8 | Two-pane workspace overhaul + exact brand palette + string humanizer | ✅ done | frontend-only; humanizer verified against live API data for U02/U03/U06; `npm run build` clean |
 
 ## Done so far (chronological)
 
@@ -142,6 +143,40 @@ at :8000 serves the built UI — no Vite needed.
     5 distinct fit scores, unique keys), and B05 (1-result edge case — confirmed CompareTable
     and the multi-leg legend correctly no-op below their 2-item thresholds instead of rendering
     broken/empty UI).
+- **2026-07-12 (P8)** Given a Streamlit-flavored brief (`st.columns`, `st.expander`, etc.) for
+  a "frontend overhaul" — flagged the framework mismatch (this app is React/TS/FastAPI, no
+  Streamlit anywhere) and implemented the same UX intent natively instead of writing dead code:
+  - **Exact brand palette**: `index.css` tokens repointed to Deep Ebony `#0F1725` (page/surface
+    ramp), Brilliant Royal Blue `#4248ED` (`--accent`, headers/CTAs), Exquisite Canary Yellow
+    `#FEBF4F` (`--status-warn` + new `--canary`/`.chip-ai` — reserved for status/AI/metric tags
+    only; true error/critical red and success green were deliberately NOT repainted canary, to
+    keep "AI is on" visually distinct from "something went wrong").
+  - **Two-pane workspace**: `App.tsx` restructured into a real `lg:grid-cols-[1fr_2.5fr]` grid.
+    Deleted `PersonaRail.tsx` (the old always-visible 256px 50-row list) and replaced it with
+    `TravelerSwitcher.tsx` — a compact trigger + searchable dropdown — composed with
+    `ProfilePanel` into the left "dossier" column; `TripConsole` + results moved into the right
+    "planner" column, which is now roughly 2.5x wider and no longer starved for space.
+  - **Collapsible persona insights**: `ProfilePanel.tsx` now shows only the identity line +
+    contradiction banner by default; the full hard/strong/soft chip breakdown + raw history is
+    behind one `<details>` accordion titled exactly "🔍 View Mined Travel Persona Insights",
+    collapsed by default.
+  - **Dynamic benchmark chips**: `TripConsole.tsx` takes a `compact` prop; `App.tsx` sets a
+    one-way `hasSearched` flag true the instant `run()` fires. Pre-search: full B01–B06 template
+    grid. Post-search (permanently, for the session): a tight single-row horizontally-scrollable
+    pill rail, freeing vertical space for results.
+  - **String humanizer** (`src/humanize.ts`, new): targeted translator (not a generic JSON
+    formatter) for the exact shapes the fusion engine emits — `seasonal_months` arrays → season
+    labels, `baggage` objects + standalone `checked_bags`/`stroller` → bag/stroller tags,
+    `preferred_airlines` arrays + standalone `airline_liked` strings → IATA-code-to-airline-name
+    "Loyalist:" tags, boolean flags → a keyed phrase table, with a never-raw-JSON fallback for
+    anything unmapped. Verified by executing it (via `node --experimental-strip-types`) against
+    real preference payloads pulled live from `/api/users/{U02,U03,U06}/profile` — caught two
+    real gaps this way (`checked_bags` as a bare number and `airline_liked` as a bare string,
+    not arrays) that hand-tracing had missed, fixed before shipping.
+  - Premium result cards (fit-score ring, route timeline, evidence-cited "why this" box) were
+    already built in P6/P7 — confirmed still correct against the directive, left untouched;
+    they inherit the new brand tokens automatically via CSS variables.
+  - **Verify**: `npm run build` clean; backend untouched, pytest 38/38 reconfirmed.
 
 ## Decisions log (deviations/refinements vs blueprint — keep appending)
 
