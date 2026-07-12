@@ -25,24 +25,35 @@ function LoadingSkeleton() {
   )
 }
 
+/** Each traveler gets their own isolated "chat" — query text, last result,
+ * and whether they've ever searched. Keyed by user_id so switching travelers
+ * in the sidebar never leaks one traveler's results onto another's screen. */
+interface Session {
+  query: string
+  response: RecommendResponse | null
+  lastRun: { userId: string; query: string } | null
+  hasSearched: boolean
+}
+const EMPTY_SESSION: Session = { query: '', response: null, lastRun: null, hasSearched: false }
+
 export default function App() {
   const [meta, setMeta] = useState<Meta | null>(null)
   const [users, setUsers] = useState<UserSummary[]>([])
   const [benchmarks, setBenchmarks] = useState<Benchmark[]>([])
   const [selected, setSelected] = useState<string>('U01')
   const [profile, setProfile] = useState<UserProfile | null>(null)
-  const [query, setQuery] = useState('')
-  const [lastRun, setLastRun] = useState<{ userId: string; query: string } | null>(null)
-  const [response, setResponse] = useState<RecommendResponse | null>(null)
+  const [sessions, setSessions] = useState<Record<string, Session>>({})
   const [loading, setLoading] = useState(false)
   const [refining, setRefining] = useState(false)
   const [error, setError] = useState('')
   const [tab, setTab] = useState<'plan' | 'bench'>('plan')
-  // Flips true the instant a search fires and stays true for the session —
-  // this is what collapses the B01–B06 template grid into a compact rail
-  // (directive: "the exact second a search is executed").
-  const [hasSearched, setHasSearched] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(true)
+
+  const session = sessions[selected] ?? EMPTY_SESSION
+
+  function patchSession(userId: string, patch: Partial<Session>) {
+    setSessions(prev => ({ ...prev, [userId]: { ...(prev[userId] ?? EMPTY_SESSION), ...patch } }))
+  }
 
   useEffect(() => {
     fetchMeta().then(setMeta).catch(() => setError('Backend not reachable — start uvicorn on :8000'))
@@ -56,11 +67,15 @@ export default function App() {
 
   async function run(userId: string, q: string) {
     if (!q.trim()) return
-    setHasSearched(true)
+    // Flips true the instant a search fires and stays true for that
+    // traveler's session — this is what collapses the B01–B06 template
+    // grid into a compact rail (directive: "the exact second a search is
+    // executed"), scoped per-traveler so a fresh persona still sees the grid.
+    patchSession(userId, { hasSearched: true })
     setLoading(true); setError(''); setTab('plan')
     try {
-      setResponse(await postRecommend(userId, q))
-      setLastRun({ userId, query: q })
+      const res = await postRecommend(userId, q)
+      patchSession(userId, { response: res, lastRun: { userId, query: q } })
     } catch (e) {
       setError(String(e))
     } finally {
@@ -69,10 +84,12 @@ export default function App() {
   }
 
   async function refine(followup: string) {
-    if (!lastRun || !followup.trim()) return
+    const s = sessions[selected]
+    if (!s?.lastRun || !followup.trim()) return
     setRefining(true); setError('')
     try {
-      setResponse(await postRefine(lastRun.userId, lastRun.query, followup))
+      const res = await postRefine(s.lastRun.userId, s.lastRun.query, followup)
+      patchSession(selected, { response: res })
     } catch (e) {
       setError(String(e))
     } finally {
@@ -155,31 +172,36 @@ export default function App() {
                 </div>
 
                 <div className="space-y-4 min-w-0">
-                <TripConsole
-                  query={query} setQuery={setQuery} benchmarks={benchmarks}
-                  loading={loading} compact={hasSearched}
-                  onRun={(q) => run(selected, q)}
-                  onBenchmark={(b) => { setSelected(b.user_id); setQuery(b.request); run(b.user_id, b.request) }}
-                />
-                {error && (
-                  <div className="card p-3 text-sm" style={{ borderColor: 'var(--status-critical)' }}>{error}</div>
-                )}
-                {loading && <LoadingSkeleton />}
-                {!loading && response && (
-                  <ResultsView r={response} onRefine={refine} refining={refining} />
-                )}
-                {!loading && !response && !error && (
-                  <div className="card p-10 text-center rise-in">
-                    <div className="mx-auto w-10 h-10 rounded-full flex items-center justify-center mb-3"
-                      style={{ background: 'var(--accent-soft)' }}>
-                      <Navigation size={18} style={{ color: 'var(--accent)' }} />
+                  <TripConsole
+                    query={session.query} setQuery={(q) => patchSession(selected, { query: q })}
+                    benchmarks={benchmarks}
+                    loading={loading} compact={session.hasSearched}
+                    onRun={(q) => run(selected, q)}
+                    onBenchmark={(b) => {
+                      setSelected(b.user_id)
+                      patchSession(b.user_id, { query: b.request })
+                      run(b.user_id, b.request)
+                    }}
+                  />
+                  {error && (
+                    <div className="card p-3 text-sm" style={{ borderColor: 'var(--status-critical)' }}>{error}</div>
+                  )}
+                  {loading && <LoadingSkeleton />}
+                  {!loading && session.response && (
+                    <ResultsView r={session.response} onRefine={refine} refining={refining} />
+                  )}
+                  {!loading && !session.response && !error && (
+                    <div className="card p-10 text-center rise-in">
+                      <div className="mx-auto w-10 h-10 rounded-full flex items-center justify-center mb-3"
+                        style={{ background: 'var(--accent-soft)' }}>
+                        <Navigation size={18} style={{ color: 'var(--accent)' }} />
+                      </div>
+                      <div className="font-semibold mb-1">Where to?</div>
+                      <div className="muted text-sm">
+                        Pick a traveler on the left, then ask for a trip — or click a benchmark prompt above.
+                      </div>
                     </div>
-                    <div className="font-semibold mb-1">Where to?</div>
-                    <div className="muted text-sm">
-                      Pick a traveler on the left, then ask for a trip — or click a benchmark prompt above.
-                    </div>
-                  </div>
-                )}
+                  )}
                 </div>
               </div>
             ) : (
