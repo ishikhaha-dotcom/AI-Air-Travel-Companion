@@ -310,35 +310,7 @@ style: |
 
 ---
 
-<!-- PAGE 6 : DEMO VIDEO -->
-
-<div class="tag-num"><span class="n">V</span> Demo Video</div>
-
-## See it think, live (3 to 5 minutes)
-
-<div class="demo-grid">
-<div>
-<ul class="demo-list">
-<li><b>Personalization with receipts</b> · hover any preference to see the quote it came from</li>
-<li><b>Conversational refinement</b> · "make it cheaper", "under $900", it never forgets or fakes</li>
-<li><b>The family trap</b> · books 3 seats from "traveling with 2 kids", narrows to school holidays</li>
-<li><b>The impossible request</b> · no direct Lisbon to Sydney exists, watch the Relaxation Ladder</li>
-<li><b>Multi-city map</b> · every visit order tried, self-composed connections drawn as dashed arcs</li>
-<li><b>Self-grading</b> · runs the judges' own prompts and verifies 42 of 42 behaviors on screen</li>
-</ul>
-</div>
-<div>
-<div class="qr-box">
-<div class="q"></div>
-<div class="lbl">Watch the 3 to 5 min demo</div>
-<div class="url">[ paste OneDrive / YouTube link here ]</div>
-</div>
-</div>
-</div>
-
----
-
-<!-- PAGE 7 : IMPACT & CLOSE -->
+<!-- PAGE 6 : IMPACT & CLOSE -->
 
 <div class="tag-num"><span class="n">✦</span> Why It Wins</div>
 
