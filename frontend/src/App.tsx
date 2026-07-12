@@ -110,9 +110,9 @@ export default function App() {
           </button>
         )}
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
-            style={{ background: 'var(--accent-grad)', boxShadow: '0 2px 12px -2px rgba(124,92,217,0.55)' }}>
-            <Navigation size={16} color="#fff" strokeWidth={2.5} />
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center"
+            style={{ background: 'var(--accent-grad)' }}>
+            <Navigation size={17} color="#fff" strokeWidth={2.5} />
           </div>
           <div>
             <div className="text-[17px] font-bold tracking-tight leading-none">

@@ -5,41 +5,32 @@
 @import "@fontsource/inter/700.css";
 @import "@fontsource/inter/800.css";
 
-/* WayFinder design system — Expedia Group Campus Hackathon 2026 brand: the
-   deep-indigo-to-lavender gradient from the official event deck ("Build the
-   Future of Travel"), carried into a working dark product rather than a
-   title-slide wash. Deliberate design call: a data-dense flight-search app
-   needs a dark, high-contrast surface system for long sessions — so the
-   gradient itself is reserved for brand MOMENTS (logo mark, primary CTA,
-   the recommended pick, the wordmark) while the page/card surfaces are a
-   deep violet-black that reads as the same family, not a clashing navy.
-   Warm gold stays the status/AI/metric accent — purple + gold is a
-   deliberate premium pairing, and keeping it distinct from the primary
-   violet means "AI is on" never looks like "something went wrong."
-   Series palette (feature score bars, route-map legs) is its own five-hue
-   set per dataviz rules and is deliberately NOT repainted to brand colors
-   — series-5 already sits in the same violet family, which now reads as a
-   happy accident rather than a coincidence. */
+/* WayFinder design system — Expedia dark brand: Deep Ebony / Brilliant Royal
+   Blue / Exquisite Canary Yellow. Elevation: page → surface → raised → overlay.
+   Royal Blue is reserved for headers/accents/primary actions; Canary is
+   reserved for status, AI, and metric tags — the two never trade places, so
+   "AI is on" and "an error occurred" stay visually distinct. Series palette
+   (feature score bars, route-map legs) is its own five-hue set per dataviz
+   rules and is deliberately NOT repainted to brand colors. */
 :root {
-  --page: #120B29;        /* deep violet-black */
-  --surface: #1B1240;
-  --surface-2: #251A54;
-  --surface-3: #2F2268;
+  --page: #0F1725;       /* Deep Ebony */
+  --surface: #141C2E;
+  --surface-2: #1B2438;
+  --surface-3: #232D46;
   --ink: #f4f5f7;
-  --ink-2: #bdb6d9;
-  --muted: #8a83a8;
-  --grid: #362A66;
-  --baseline: #453578;
+  --ink-2: #b8bcc6;
+  --muted: #7d828e;
+  --grid: #29314a;
+  --baseline: #37405c;
   --border: rgba(255, 255, 255, 0.08);
   --border-strong: rgba(255, 255, 255, 0.14);
 
-  --accent: #7C5CD9;      /* mid violet — headers/accents/primary actions */
-  --accent-2: #9B85E8;
-  --accent-deep: #3B2A85; /* gradient's darkest anchor, from the event deck */
-  --accent-grad: linear-gradient(135deg, #3B2A85 0%, #7C5CD9 55%, #B7A2F2 100%);
-  --accent-soft: rgba(124, 92, 217, 0.16);
+  --accent: #4248ED;     /* Brilliant Royal Blue */
+  --accent-2: #6A6FF2;
+  --accent-grad: linear-gradient(135deg, #4248ED 0%, #6A6FF2 100%);
+  --accent-soft: rgba(66, 72, 237, 0.14);
 
-  --canary: #FEBF4F;     /* warm gold — status / AI / metric tags */
+  --canary: #FEBF4F;     /* Exquisite Canary Yellow — status / AI / metric tags */
   --canary-soft: rgba(254, 191, 79, 0.14);
   --canary-border: rgba(254, 191, 79, 0.38);
 
@@ -60,11 +51,7 @@
 
 html, body, #root { height: 100%; }
 body {
-  background:
-    radial-gradient(900px 480px at 10% -10%, rgba(124, 92, 217, 0.20), transparent 60%),
-    radial-gradient(700px 420px at 100% 0%, rgba(183, 162, 242, 0.10), transparent 55%),
-    var(--page);
-  background-attachment: fixed;
+  background: var(--page);
   color: var(--ink);
   font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   font-size: 14px;
@@ -148,8 +135,8 @@ body {
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 .input:focus {
-  border-color: rgba(124, 92, 217, 0.55);
-  box-shadow: 0 0 0 3px rgba(124, 92, 217, 0.18);
+  border-color: rgba(79, 143, 247, 0.55);
+  box-shadow: 0 0 0 3px rgba(79, 143, 247, 0.15);
 }
 .input::placeholder { color: var(--muted); }
 
