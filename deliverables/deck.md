@@ -3,409 +3,368 @@ marp: true
 theme: default
 paginate: true
 html: true
-footer: 'WayFinder — AI Air Travel Companion'
+footer: 'WayFinder · Expedia Group Campus Hackathon 2026'
 size: 16:9
 style: |
   :root {
-    --ebony: #0F1725;
-    --ebony-2: #141D30;
-    --ebony-3: #1B2540;
-    --royal: #4248ED;
-    --royal-soft: rgba(66,72,237,0.14);
-    --royal-border: rgba(66,72,237,0.32);
-    --canary: #FEBF4F;
-    --canary-soft: rgba(254,191,79,0.14);
-    --canary-border: rgba(254,191,79,0.38);
-    --ink: #F5F7FC;
-    --ink-2: #B9C0DE;
-    --muted: #7B84AC;
-    --border: rgba(255,255,255,0.08);
+    --paper: #ffffff;
+    --page: #eef3fb;
+    --navy: #10152E;
+    --navy-2: #1C2A4A;
+    --ink: #26324a;
+    --ink-2: #55617a;
+    --muted: #8894ab;
+    --blue: #1668E3;
+    --blue-2: #0f52bf;
+    --blue-soft: #e7f0fe;
+    --blue-border: rgba(22,104,227,0.28);
+    --yellow: #FDB92C;
+    --yellow-soft: #fff3d6;
+    --yellow-border: rgba(253,185,44,0.55);
+    --border: rgba(16,21,46,0.10);
+    --shadow: 0 10px 34px -14px rgba(16,21,46,0.28);
   }
   section {
-    background: var(--ebony);
+    background:
+      radial-gradient(680px 380px at 6% -8%, rgba(253,185,44,0.18), transparent 60%),
+      radial-gradient(720px 440px at 100% -4%, rgba(22,104,227,0.12), transparent 55%),
+      var(--page);
     color: var(--ink);
     font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
     font-size: 21px;
-    padding: 44px 60px 34px;
+    padding: 42px 58px 34px;
     line-height: 1.5;
   }
-  section::after { color: var(--muted); font-size: 13px; }
-  footer { color: var(--muted); font-size: 12px; letter-spacing: 0.04em; }
-  h1, h2, h3 { color: var(--ink); letter-spacing: -0.02em; margin: 0 0 6px; }
-  h2 { font-size: 28px; color: var(--royal); font-weight: 800; }
-  strong { color: var(--ink); font-weight: 700; }
+  section::after { color: var(--muted); font-size: 13px; font-weight: 600; }
+  footer { color: var(--muted); font-size: 12px; letter-spacing: 0.03em; }
+  h1, h2, h3 { color: var(--navy); letter-spacing: -0.02em; margin: 0 0 6px; }
+  h2 { font-size: 30px; font-weight: 800; }
+  strong { color: var(--navy); font-weight: 700; }
   em { color: var(--ink-2); font-style: italic; }
-  code { background: var(--ebony-3); color: var(--canary); padding: 1px 7px; border-radius: 6px; font-size: 0.85em; }
-  a { color: var(--royal); }
+  a { color: var(--blue); }
 
-  /* ---- shared atoms ---- */
-  .kicker {
-    display: inline-block; font-size: 12.5px; font-weight: 700; letter-spacing: 0.09em;
-    color: var(--canary); background: var(--canary-soft); border: 1px solid var(--canary-border);
-    border-radius: 999px; padding: 5px 14px; margin-bottom: 16px;
+  /* ---- brand mark + section tags ---- */
+  .brand { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+  .brand-word { font-size: 18px; font-weight: 800; color: var(--navy); letter-spacing: -0.02em; }
+  .brand-sub { font-size: 12.5px; font-weight: 600; color: var(--ink-2); border-left: 1px solid var(--border); padding-left: 10px; margin-left: 2px; }
+  .tag-num {
+    display: inline-flex; align-items: center; gap: 8px; margin-bottom: 14px;
+    font-size: 12.5px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--blue); background: var(--blue-soft); border: 1px solid var(--blue-border);
+    border-radius: 999px; padding: 6px 14px;
   }
-  .tag {
-    display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 0.06em;
-    color: var(--canary); background: var(--canary-soft); border: 1px solid var(--canary-border);
+  .tag-num .n {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 20px; height: 20px; border-radius: 6px; background: var(--yellow); color: var(--navy);
+    font-size: 12px; font-weight: 800;
+  }
+  .pill {
+    display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 0.04em;
+    color: var(--navy); background: var(--yellow-soft); border: 1px solid var(--yellow-border);
     border-radius: 8px; padding: 4px 10px; margin: 2px 4px 2px 0;
   }
-  .tag-blue {
-    display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 0.06em;
-    color: var(--royal); background: var(--royal-soft); border: 1px solid var(--royal-border);
+  .pill-blue {
+    display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 0.04em;
+    color: var(--blue); background: var(--blue-soft); border: 1px solid var(--blue-border);
     border-radius: 8px; padding: 4px 10px; margin: 2px 4px 2px 0;
   }
+  .card {
+    background: var(--paper); border: 1px solid var(--border);
+    border-radius: 16px; box-shadow: var(--shadow); padding: 20px 22px;
+  }
 
-  /* ---- PAGE 1: hero ---- */
-  .hero-grid { display: grid; grid-template-columns: 1.08fr 0.92fr; gap: 40px; align-items: center; margin-top: 4px; }
-  .mega { font-size: 64px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; margin: 0 0 12px;
-    background: linear-gradient(135deg, #ffffff 30%, #AEB4F5 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
-  .hero-lead { font-size: 22px; font-weight: 700; color: var(--royal); margin: 0 0 12px; line-height: 1.35; }
-  .hero-sub { font-size: 16.5px; color: var(--ink-2); line-height: 1.6; margin: 0 0 20px; }
+  /* ---- PAGE 1 cover ---- */
+  .cover-grid { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 42px; align-items: center; margin-top: 2px; }
+  .display { font-size: 66px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; color: var(--navy); margin: 0 0 14px; }
+  .display .fin { color: var(--blue); }
+  .lead { font-size: 22px; font-weight: 700; color: var(--navy-2); line-height: 1.35; margin: 0 0 12px; }
+  .sub { font-size: 16px; color: var(--ink-2); line-height: 1.6; margin: 0 0 20px; }
   .byline { border-top: 1px solid var(--border); padding-top: 14px; margin-bottom: 18px; }
-  .byline-name { font-size: 17px; font-weight: 700; color: var(--ink); }
-  .byline-meta { font-size: 13.5px; color: var(--muted); }
+  .byline b { font-size: 17px; color: var(--navy); }
+  .byline span { display: block; font-size: 13px; color: var(--muted); margin-top: 2px; }
   .stat-row { display: flex; gap: 26px; }
-  .stat-num { display: block; font-size: 24px; font-weight: 800; color: var(--ink); }
-  .stat-num.yellow { color: var(--canary); }
-  .stat-label { display: block; font-size: 11.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; }
-  .mockup-frame { position: relative; border-radius: 18px; padding: 10px; background: var(--ebony-2);
-    border: 1px solid var(--royal-border); box-shadow: 0 0 0 1px rgba(66,72,237,0.08), 0 30px 70px -20px rgba(66,72,237,0.45); }
-  .mockup-frame img { width: 100%; border-radius: 12px; display: block; }
-  .mockup-pill { position: absolute; top: 22px; left: 22px; font-size: 11px; font-weight: 700; letter-spacing: 0.05em;
-    color: var(--canary); background: rgba(15,23,37,0.85); border: 1px solid var(--canary-border); border-radius: 999px;
-    padding: 5px 12px; backdrop-filter: blur(4px); }
-  .mockup-caption { font-size: 12.5px; color: var(--muted); text-align: center; margin-top: 10px; }
+  .stat b { display: block; font-size: 25px; font-weight: 800; color: var(--navy); }
+  .stat.blue b { color: var(--blue); }
+  .stat span { display: block; font-size: 11.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; }
+  .browser { border-radius: 14px; overflow: hidden; border: 1px solid var(--border); box-shadow: 0 24px 60px -20px rgba(16,21,46,0.4); background: #0f1725; }
+  .browser-bar { display: flex; align-items: center; gap: 6px; padding: 9px 12px; background: #e9edf5; }
+  .browser-bar i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .browser-url { flex: 1; margin-left: 8px; font-size: 11px; color: #6b7488; background: #fff; border-radius: 6px; padding: 3px 10px; text-align: center; font-style: normal; }
+  .browser img { width: 100%; display: block; }
+  .cap { font-size: 12px; color: var(--muted); text-align: center; margin-top: 10px; }
 
-  /* ---- PAGE 2: split pane ---- */
-  .split-pane { display: grid; grid-template-columns: 1fr 1px 1fr; gap: 30px; margin-top: 10px; }
-  .pane-divider { background: linear-gradient(var(--ebony), var(--royal-border), var(--ebony)); }
-  .pane-kicker { font-size: 12px; font-weight: 800; letter-spacing: 0.1em; margin-bottom: 8px; }
-  .pane-left .pane-kicker { color: var(--ink-2); }
-  .pane-right .pane-kicker { color: var(--canary); }
-  .pane-title { font-size: 17.5px; font-weight: 700; margin-bottom: 16px; line-height: 1.4; }
-  .point { border-left: 2px solid var(--border); padding-left: 14px; margin-bottom: 14px; }
-  .pane-right .point { border-left-color: var(--royal-border); }
-  .point-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 2px; }
-  .point-body { font-size: 13.5px; color: var(--ink-2); line-height: 1.5; }
-  .bridge-tag { margin-top: 20px; text-align: center; font-size: 14px; font-weight: 700; color: var(--canary);
-    background: var(--canary-soft); border: 1px solid var(--canary-border); border-radius: 10px; padding: 10px 16px; }
+  /* ---- PAGE 2 problem ---- */
+  .prob-hero { font-size: 20px; color: var(--navy-2); font-weight: 600; line-height: 1.5; max-width: 900px; margin: 2px 0 18px; }
+  .prob-hero b { color: var(--navy); }
+  .prob-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .prob-card { background: var(--paper); border: 1px solid var(--border); border-left: 4px solid var(--yellow); border-radius: 14px; box-shadow: var(--shadow); padding: 18px; }
+  .prob-card.blue { border-left-color: var(--blue); }
+  .prob-card h4 { font-size: 15.5px; font-weight: 700; color: var(--navy); margin: 0 0 6px; }
+  .prob-card p { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; margin: 0; }
+  .kicker-line { margin-top: 18px; font-size: 15px; font-weight: 700; color: var(--navy); text-align: center; background: var(--yellow-soft); border: 1px solid var(--yellow-border); border-radius: 12px; padding: 12px 16px; }
 
-  /* ---- PAGE 3: 3-card pillars ---- */
-  .card-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 10px; }
-  .pillar-card { background: var(--ebony-2); border: 1px solid var(--border); border-radius: 16px; padding: 20px 18px;
-    display: flex; flex-direction: column; gap: 8px; }
-  .pillar-num { font-size: 13px; font-weight: 800; color: var(--royal); letter-spacing: 0.05em; }
-  .pillar-title { font-size: 16.5px; font-weight: 700; color: var(--ink); line-height: 1.3; min-height: 44px; }
-  .pillar-body { font-size: 13px; color: var(--ink-2); line-height: 1.55; flex: 1; }
-  .flow-strip { margin-top: 16px; text-align: center; font-size: 13.5px; color: var(--ink-2); font-weight: 600;
-    letter-spacing: 0.02em; border-top: 1px solid var(--border); padding-top: 14px; }
-  .flow-strip .seg { color: var(--royal); }
+  /* ---- PAGE 3 solution ---- */
+  .pillar-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 6px 0 14px; }
+  .pillar { background: var(--paper); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow); padding: 18px; display: flex; flex-direction: column; gap: 8px; }
+  .pillar .num { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 9px; background: var(--blue); color: #fff; font-weight: 800; font-size: 15px; }
+  .pillar h4 { font-size: 16px; font-weight: 700; color: var(--navy); margin: 0; min-height: 40px; }
+  .pillar p { font-size: 13px; color: var(--ink-2); line-height: 1.55; margin: 0; flex: 1; }
+  .sol-foot { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 
-  /* ---- PAGE 4: data-flow blocks ---- */
-  .flow-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 8px; }
-  .flow-block { background: var(--ebony-2); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; position: relative; }
-  .flow-block.accent { border-color: var(--canary-border); background: linear-gradient(160deg, var(--canary-soft), var(--ebony-2) 55%); }
-  .flow-label { font-size: 11.5px; font-weight: 800; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 4px; }
-  .flow-title { font-size: 16px; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
-  .flow-body { font-size: 12.8px; color: var(--ink-2); line-height: 1.5; }
-  .tag-row { margin-top: 16px; text-align: center; }
+  /* ---- PAGE 4 architecture ---- */
+  .flow { display: flex; flex-direction: column; gap: 9px; margin-top: 6px; }
+  .flow-row { display: flex; align-items: stretch; gap: 10px; }
+  .flow-step { flex: 1; background: var(--paper); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); padding: 12px 15px; }
+  .flow-step .s { font-size: 11px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--blue); }
+  .flow-step .t { font-size: 14.5px; font-weight: 700; color: var(--navy); margin: 2px 0; }
+  .flow-step .d { font-size: 12px; color: var(--ink-2); line-height: 1.45; }
+  .flow-step.accent { border-color: var(--yellow-border); background: var(--yellow-soft); }
+  .flow-step.accent .s { color: #b6810c; }
+  .why-note { margin-top: 12px; font-size: 13.5px; color: var(--navy-2); background: var(--blue-soft); border: 1px solid var(--blue-border); border-radius: 12px; padding: 12px 16px; line-height: 1.5; }
+  .why-note b { color: var(--blue); }
 
-  /* ---- PAGE 5: proof hero ---- */
-  .proof-hero { text-align: center; margin: 6px 0 22px; }
-  .proof-num { font-size: 108px; font-weight: 800; line-height: 1; color: var(--canary);
-    text-shadow: 0 0 60px rgba(254,191,79,0.35); }
-  .proof-den { font-size: 52px; color: var(--ink-2); font-weight: 700; }
-  .proof-label { font-size: 17px; font-weight: 700; color: var(--ink); margin-top: 6px; }
-  .stat-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
-  .stat-block { background: var(--ebony-2); border: 1px solid var(--border); border-radius: 14px; padding: 16px; text-align: center; }
-  .stat-block-num { font-size: 26px; font-weight: 800; color: var(--royal); }
-  .stat-block-label { font-size: 11.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 4px; }
-  .proof-note { font-size: 14.5px; color: var(--ink-2); line-height: 1.6; text-align: center; max-width: 900px; margin: 0 auto; }
+  /* ---- PAGE 5 datasets ---- */
+  .data-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 6px 0 14px; }
+  .data-card { background: var(--paper); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow); padding: 18px; }
+  .data-card .fname { font-size: 13.5px; font-weight: 800; color: var(--blue); font-family: ui-monospace, monospace; }
+  .data-card .big { font-size: 30px; font-weight: 800; color: var(--navy); margin: 6px 0 2px; }
+  .data-card .lbl { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .data-card p { font-size: 12.5px; color: var(--ink-2); line-height: 1.5; margin: 8px 0 0; }
+  .data-note { font-size: 13.5px; color: var(--navy-2); background: var(--yellow-soft); border: 1px solid var(--yellow-border); border-radius: 12px; padding: 12px 16px; line-height: 1.5; }
+  .data-note b { color: var(--navy); }
 
-  /* ---- PAGE 6: 2x2 impact grid ---- */
-  .metric-grid-2x2 { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 16px; margin-top: 10px; height: 480px; }
-  .metric-card { background: var(--ebony-2); border: 1px solid var(--border); border-radius: 16px; padding: 20px 22px;
-    display: flex; flex-direction: column; justify-content: center; gap: 8px; }
-  .metric-title { font-size: 18px; font-weight: 700; color: var(--ink); }
-  .metric-body { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+  /* ---- PAGE 6 demo ---- */
+  .demo-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 30px; align-items: center; margin-top: 6px; }
+  .demo-list { list-style: none; padding: 0; margin: 8px 0 0; }
+  .demo-list li { font-size: 14.5px; color: var(--ink); line-height: 1.5; padding: 7px 0 7px 26px; position: relative; border-bottom: 1px solid var(--border); }
+  .demo-list li:before { content: '▸'; position: absolute; left: 4px; color: var(--blue); font-weight: 800; }
+  .demo-list li b { color: var(--navy); }
+  .qr-box { background: var(--paper); border: 2px dashed var(--blue-border); border-radius: 16px; box-shadow: var(--shadow); padding: 26px; text-align: center; }
+  .qr-box .q { width: 130px; height: 130px; margin: 0 auto 14px; border-radius: 12px; background: repeating-conic-gradient(var(--navy) 0% 25%, #fff 0% 50%) 50% / 22px 22px; opacity: 0.15; }
+  .qr-box .lbl { font-size: 13px; font-weight: 700; color: var(--navy); }
+  .qr-box .url { font-size: 12px; color: var(--blue); margin-top: 4px; word-break: break-all; }
 
-  /* ---- PAGE 7: roadmap ---- */
-  .roadmap-grid { display: grid; grid-template-columns: 0.85fr 1.3fr; gap: 34px; margin-top: 8px; }
-  .col-kicker { font-size: 12px; font-weight: 800; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 14px; }
-  .check-item { display: flex; gap: 10px; margin-bottom: 14px; }
-  .check-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); margin-top: 6px; flex-shrink: 0; }
-  .check-text { font-size: 13.5px; color: var(--ink-2); line-height: 1.5; }
-  .check-text b { color: var(--ink); }
-  .timeline-col { border-left: 2px solid var(--border); padding-left: 26px; }
-  .timeline-row { position: relative; margin-bottom: 22px; }
-  .timeline-row:last-child { margin-bottom: 0; }
-  .timeline-dot { position: absolute; left: -32px; top: 3px; width: 13px; height: 13px; border-radius: 50%;
-    background: var(--ebony); border: 2px solid var(--royal); }
-  .timeline-dot.now { background: var(--canary); border-color: var(--canary); }
-  .timeline-stage { font-size: 12px; font-weight: 800; letter-spacing: 0.08em; color: var(--royal); margin-bottom: 3px; }
-  .timeline-row:first-child .timeline-stage { color: var(--canary); }
-  .timeline-text { font-size: 14px; color: var(--ink-2); line-height: 1.55; }
-  .timeline-text b { color: var(--ink); }
-  .closing-tag { margin-top: 18px; text-align: center; font-size: 14.5px; font-weight: 700; color: var(--royal);
-    border-top: 1px solid var(--border); padding-top: 16px; }
+  /* ---- PAGE 7 impact ---- */
+  .impact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 6px 0 12px; }
+  .metric { background: var(--paper); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow); padding: 16px 18px; }
+  .metric h4 { font-size: 15.5px; font-weight: 700; color: var(--navy); margin: 6px 0 4px; }
+  .metric p { font-size: 12.8px; color: var(--ink-2); line-height: 1.5; margin: 0; }
+  .close-line { text-align: center; font-size: 17px; font-weight: 800; color: var(--navy); margin-top: 4px; }
+  .close-line span { color: var(--blue); }
 ---
 
-<!-- PAGE 1 — Title & Product Vision -->
+<!-- PAGE 1 : COVER -->
 
-<div class="hero-grid">
+<div class="brand">
+<svg width="30" height="30" viewBox="0 0 34 34" aria-hidden="true"><rect x="1" y="1" width="32" height="32" rx="8" fill="#FDB92C"/><path d="M11.5 21.5 L21.5 11.5 M21.5 11.5 L21.5 17.5 M21.5 11.5 L15.5 11.5" stroke="#10152E" stroke-width="2.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<span class="brand-word">Expedia</span>
+<span class="brand-sub">Campus Hackathon 2026 · Problem Statement 1</span>
+</div>
+
+<div class="cover-grid">
 <div>
 
-<span class="kicker">AI AIR TRAVEL COMPANION · EXPEDIA HACKATHON</span>
+<div class="display">Way<span class="fin">Finder</span></div>
 
-<div class="mega">WayFinder</div>
+<div class="lead">The AI travel companion that reads the traveler, not just the query.</div>
 
-<div class="hero-lead">The neuro-symbolic travel strategist that reads the traveler — not just the query.</div>
-
-<div class="hero-sub">Every recommendation WayFinder makes is the product of two fused signals: what a traveler <em>declares</em> in their profile, and what they <em>reveal</em> across years of messy, unstructured booking history — resolved into hard constraints, personalized scoring weights, and a route computed live across 50,000 real itineraries, with every decision traced back to its evidence.</div>
+<div class="sub">A traveler tells you how they fly in two places. Half sits in their profile. The other half is buried in messy history like <em>"redeyes kill my mornings."</em> WayFinder reads both, fuses them into one traveler model, searches 50,000 real itineraries, and shows a receipt for every decision it makes.</div>
 
 <div class="byline">
-<div class="byline-name">Ishika Sattawan</div>
-<div class="byline-meta">IIT Roorkee · Solo Submission</div>
+<b>Ishika Sattawan</b>
+<span>Build the Future of Travel · Innovation Round</span>
 </div>
 
 <div class="stat-row">
-<div><span class="stat-num">50,000</span><span class="stat-label">Itineraries Indexed</span></div>
-<div><span class="stat-num">50</span><span class="stat-label">Traveler Profiles</span></div>
-<div><span class="stat-num yellow">42/42</span><span class="stat-label">Behaviors Verified</span></div>
+<div class="stat"><b>50,000</b><span>Itineraries</span></div>
+<div class="stat"><b>50</b><span>Travelers</span></div>
+<div class="stat blue"><b>42/42</b><span>Behaviors Verified</span></div>
 </div>
 
 </div>
 <div>
 
-<div class="mockup-frame">
-<span class="mockup-pill">● LIVE ROUTE ENGINE</span>
+<div class="browser">
+<div class="browser-bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span class="browser-url">localhost:8000 · WayFinder</span></div>
 <img src="assets/ui-b02-map.png" />
 </div>
-<div class="mockup-caption">In-product routing surface — true great-circle arcs, animated per journey, computed on request</div>
+<div class="cap">The live product: multi-city routing rendered on a real great-circle map</div>
 
 </div>
 </div>
 
 ---
 
-<!-- PAGE 2 — The Core Problem Matrix -->
+<!-- PAGE 2 : PROBLEM STATEMENT -->
 
-## The Core Problem Matrix
+<div class="tag-num"><span class="n">I</span> Problem Statement</div>
 
-<div class="split-pane">
-<div class="pane-left">
+## Six travelers, one query, one lazy answer
 
-<div class="pane-kicker">USER FRICTION</div>
-<div class="pane-title">Generic search treats every traveler as the same traveler.</div>
+<div class="prob-hero">Ask six different people to <b>"find me a flight"</b> and today's search hands all six the same list. A backpacker chasing the cheapest red-eye and a family of three with a stroller get treated as if they are the same person. They are not.</div>
 
-<div class="point">
-<div class="point-title">One-size search</div>
-<div class="point-body">Static filters can't parse <em>"redeyes kill my mornings"</em> or <em>"broke student, absolute cheapest only"</em> — the exact signals travelers actually leave behind.</div>
+<div class="prob-grid">
+<div class="prob-card">
+<h4>Filters cannot read a human</h4>
+<p>"Redeyes kill my mornings" means nothing to a dropdown. The preferences that actually decide a booking never fit in a checkbox.</p>
 </div>
-
-<div class="point">
-<div class="point-title">Silent contradictions</div>
-<div class="point-body">A profile says age 66, Business preferred; the traveler's own history says <em>"broke student."</em> Today's engines never reconcile it — they just pick one, silently.</div>
+<div class="prob-card">
+<h4>The real signal is hiding</h4>
+<p>Two kids. A 90 minute layover limit. School holidays only. It is all sitting in messy booking history, and nobody bothers to read it.</p>
 </div>
-
-<div class="point">
-<div class="point-title">Dead-end constraints</div>
-<div class="point-body">Direct-only, 90-minute layover cap, First cabin — on a route where none of the three exist. Most engines return zero results and stop there.</div>
-</div>
-
-</div>
-<div class="pane-divider"></div>
-<div class="pane-right">
-
-<div class="pane-kicker">BUSINESS IMPACT</div>
-<div class="pane-title">Every ignored signal is a booking Expedia doesn't make.</div>
-
-<div class="point">
-<div class="point-title">Cart abandonment</div>
-<div class="point-body">Irrelevant top results erode trust in the first five seconds of a session — before a traveler ever reaches checkout.</div>
-</div>
-
-<div class="point">
-<div class="point-title">Rising support cost</div>
-<div class="point-body">Every unexplained fare spike or layover surprise becomes a support ticket instead of a completed booking.</div>
-</div>
-
-<div class="point">
-<div class="point-title">Conversion ceiling</div>
-<div class="point-body">Generic ranking caps search-to-book conversion no matter how good the underlying inventory actually is.</div>
-</div>
-
+<div class="prob-card blue">
+<h4>So travelers bounce</h4>
+<p>Every irrelevant top result is a booking the platform never makes, and often a support ticket it will. Generic ranking caps conversion no matter how good the inventory is.</p>
 </div>
 </div>
 
-<div class="bridge-tag">THE GAP → WayFinder closes it with a fused, explainable, deterministic core.</div>
+<div class="kicker-line">The gap: personalization that understands messy humans, and can prove how it did it.</div>
 
 ---
 
-<!-- PAGE 3 — Engine Architecture -->
+<!-- PAGE 3 : SOLUTION OVERVIEW -->
 
-## The Engine Architecture — Three Pillars Under the Hood
+<div class="tag-num"><span class="n">II</span> Solution Overview</div>
 
-<div class="card-grid-3">
+## WayFinder reads the traveler, not just the query
 
-<div class="pillar-card">
-<div class="pillar-num">01</div>
-<div class="pillar-title">Preference Fusion Engine</div>
-<div class="pillar-body">Mines free-text booking history with a curated ~40-pattern signal lexicon, safely — every inferred preference carries a confidence score and a verbatim evidence quote. Conflicts between declared fields and behavioral history are surfaced to the traveler, never silently overwritten.</div>
-<span class="tag">PROVENANCE-TAGGED</span>
+<div class="pillar-grid">
+<div class="pillar">
+<span class="num">1</span>
+<h4>Preference Fusion, with receipts</h4>
+<p>Mines the messy free-text history with a curated signal lexicon and fuses it with the structured profile. Every inferred preference carries a confidence score and a verbatim quote, so you can see exactly where it came from. Contradictions get flagged, never silently overwritten.</p>
+</div>
+<div class="pillar">
+<span class="num">2</span>
+<h4>A route engine that never dead-ends</h4>
+<p>Searches 50,000 itineraries with visit-order optimization for multi-city trips and composes its own connections when no published fare exists. When constraints cannot be met, a Relaxation Ladder loosens them one documented step at a time.</p>
+</div>
+<div class="pillar">
+<span class="num">3</span>
+<h4>A conversation, not a one-shot</h4>
+<p>Say "make it cheaper" or "no redeyes" and it patches the original request and re-ranks, without forgetting anything you already asked for. Personalized fit scores from 0 to 100, every result explained in plain language.</p>
+</div>
 </div>
 
-<div class="pillar-card">
-<div class="pillar-num">02</div>
-<div class="pillar-title">Deterministic Route Core</div>
-<div class="pillar-body">Permutation × beam search routing over 50,000 itineraries: visit-order optimization for fixed multi-city trips, regional beam search for open-ended discovery, and on-the-fly self-composed connections when no published fare can serve a request.</div>
-<span class="tag-blue">50,000-ITINERARY GRAPH</span>
-</div>
-
-<div class="pillar-card">
-<div class="pillar-num">03</div>
-<div class="pillar-title">Transparent Relaxation Ladder</div>
-<div class="pillar-body">When hard constraints yield zero options, six documented steps loosen them one at a time — widen dates, compose connections, drop rigid patterns, ease layover caps — each one narrated to the traveler. Never a silent dead end.</div>
-<span class="tag">ZERO DEAD ENDS</span>
-</div>
-
-</div>
-
-<div class="flow-strip"><span class="seg">Preference Fusion</span> → <span class="seg">Deterministic Route Core</span> → <span class="seg">Relaxation Ladder</span> → Ranked, Explained Recommendation</div>
-
----
-
-<!-- PAGE 4 — High-Performance Engineering Stack -->
-
-## High-Performance Engineering Stack
-
-<div class="flow-grid">
-
-<div class="flow-block">
-<div class="flow-label">01 · FRONTEND</div>
-<div class="flow-title">React 19 + TypeScript</div>
-<div class="flow-body">Vite-built SPA with hand-rolled SVG data visualization — an offline great-circle route map and price-calendar chart with zero external charting runtime, zero tile-server or API-key dependency.</div>
-</div>
-
-<div class="flow-block">
-<div class="flow-label">02 · API LAYER</div>
-<div class="flow-title">FastAPI · Pydantic Contracts</div>
-<div class="flow-body">A stateless orchestration layer over the reasoning core — typed request/response schemas shared identically by the UI and the CLI self-grading harness, so there is exactly one code path to trust.</div>
-</div>
-
-<div class="flow-block">
-<div class="flow-label">03 · REASONING CORE</div>
-<div class="flow-title">Zero-Dependency In-Memory Route Graph</div>
-<div class="flow-body">50,000 itineraries indexed as O(1) route/origin lookups in pure Python — deliberately no pandas, no database, no cold-start. A conscious engineering call for a dataset this size: fewer dependencies, zero non-determinism, sub-500ms on every benchmark.</div>
-</div>
-
-<div class="flow-block accent">
-<div class="flow-label">04 · AI EDGE (OPTIONAL)</div>
-<div class="flow-title">Local Ollama LLM, Hallucination-Gated</div>
-<div class="flow-body">Assists NLU parsing and prose polish only — every output passes a strict Number-Integrity Check that diffs each numeral against the deterministic trace and rejects the response outright if a figure doesn't match.</div>
-</div>
-
-</div>
-
-<div class="tag-row">
-<span class="tag">SUB-500MS RESPONSE</span>
-<span class="tag">ZERO HALLUCINATION TOLERANCE</span>
-<span class="tag-blue">LLM: FULLY OPTIONAL</span>
+<div class="sol-foot">
+<span class="pill-blue">Deterministic core</span>
+<span class="pill-blue">Optional guarded LLM</span>
+<span class="pill">Evidence on every pick</span>
+<span class="pill">Trade-offs made explicit</span>
+<span class="pill">Seasonal &amp; scarcity aware</span>
 </div>
 
 ---
 
-<!-- PAGE 5 — Empirical Proof & Validation Matrix -->
+<!-- PAGE 4 : ARCHITECTURE / WORKFLOW -->
 
-## Empirical Proof & Validation Matrix
+<div class="tag-num"><span class="n">III</span> Architecture &amp; Workflow</div>
 
-<div class="proof-hero">
-<div class="proof-num">42<span class="proof-den">/42</span></div>
-<div class="proof-label">Judge-defined expected behaviors verified — automatically, deterministically, live in the app.</div>
+## From a vague sentence to an explained itinerary
+
+<div class="flow">
+<div class="flow-row">
+<div class="flow-step"><div class="s">Input</div><div class="t">Query + Traveler</div><div class="d">"Get me to Tokyo next month" for a specific profile</div></div>
+<div class="flow-step"><div class="s">Step 1 · NLU</div><div class="t">Understand the ask</div><div class="d">Resolves dates against a simulated travel clock, detects trip shape</div></div>
+<div class="flow-step"><div class="s">Step 2 · Fusion</div><div class="t">Build the traveler</div><div class="d">Profile plus mined history, every signal provenance-tagged</div></div>
+</div>
+<div class="flow-row">
+<div class="flow-step"><div class="s">Step 3 · Search</div><div class="t">Find real routes</div><div class="d">Beam and permutation search, self-composed connections, relaxation ladder</div></div>
+<div class="flow-step"><div class="s">Step 4 · Score</div><div class="t">Rank for this person</div><div class="d">Profile-derived weights produce a 0 to 100 fit score with a breakdown</div></div>
+<div class="flow-step accent"><div class="s">Step 5 · Explain</div><div class="t">Show the receipts</div><div class="d">Trade-offs, seasonal and scarcity insights, evidence-cited narrative</div></div>
+</div>
 </div>
 
-<div class="stat-grid-4">
-<div class="stat-block"><div class="stat-block-num">6/6</div><div class="stat-block-label">Benchmarks Passed</div></div>
-<div class="stat-block"><div class="stat-block-num">38/38</div><div class="stat-block-label">Tests Green</div></div>
-<div class="stat-block"><div class="stat-block-num">&lt;500ms</div><div class="stat-block-label">Median Response</div></div>
-<div class="stat-block"><div class="stat-block-num">2/2</div><div class="stat-block-label">LLM Modes Verified</div></div>
-</div>
-
-<div class="proof-note">Beyond static grading, WayFinder supports a <b style="color:var(--ink)">live conversational refinement loop</b> — "make it cheaper," "no redeyes," "under $900" — patched into the original parsed intent and re-ranked without losing any prior constraint, then independently regression-tested alongside the core benchmark suite.</div>
+<div class="why-note"><b>Why it is built this way:</b> the core is a deterministic Python engine, so results are reproducible and the demo cannot break on stage. The LLM is optional and guarded, so every number it produces is checked against the deterministic engine and rejected if it does not match. With the AI switched fully off, the whole system still passes every test.</div>
 
 ---
 
-<!-- PAGE 6 — Expected Value & Commercial Impact -->
+<!-- PAGE 5 : DATASETS / INPUTS -->
 
-## Expected Value & Commercial Impact Matrix
+<div class="tag-num"><span class="n">IV</span> Datasets &amp; Inputs Used</div>
 
-<div class="metric-grid-2x2">
+## Built entirely on the provided hackathon data
 
-<div class="metric-card">
-<span class="tag-blue">CONVERSION</span>
-<div class="metric-title">Cart Conversion Uplift</div>
-<div class="metric-body">Evidence-backed, personalized top picks reduce first-result bounce — travelers see <em>why</em> a fare fits them before they scroll past it.</div>
+<div class="data-grid">
+<div class="data-card">
+<div class="fname">flights_data.csv</div>
+<div class="big">50,000</div>
+<div class="lbl">Priced Itineraries</div>
+<p>35 airports, 1,172 routes, 0 to 2 stops each. Carries price, seats left, on-time rate, season, and demand level per flight.</p>
+</div>
+<div class="data-card">
+<div class="fname">user_data.csv</div>
+<div class="big">50</div>
+<div class="lbl">Traveler Profiles</div>
+<p>16 structured columns plus a raw_history free-text field full of the messy, contradictory, real-world signal the engine mines.</p>
+</div>
+<div class="data-card">
+<div class="fname">benchmark_prompts.json</div>
+<div class="big">6</div>
+<div class="lbl">Judge Prompts</div>
+<p>B01 to B06, each with a list of expected behaviors. The app grades itself against these live.</p>
+</div>
 </div>
 
-<div class="metric-card">
-<span class="tag">SUPPORT</span>
-<div class="metric-title">Support Ticket Deflection</div>
-<div class="metric-body">Transparent layover, pricing, and seasonal-premium explanations pre-empt "why is this so expensive" tickets before they're ever filed.</div>
-</div>
-
-<div class="metric-card">
-<span class="tag-blue">TRUST</span>
-<div class="metric-title">Regulatory & Customer Trust</div>
-<div class="metric-body">Every ranking decision traces to a cited, auditable reason — a defensible answer when algorithmic recommendations face compliance or customer-trust review.</div>
-</div>
-
-<div class="metric-card">
-<span class="tag">RETENTION</span>
-<div class="metric-title">Retention Signal</div>
-<div class="metric-body">Travelers whose real constraints — family seats, layover pain, budget mode — are visibly respected return to the platform that "gets it."</div>
-</div>
-
-</div>
+<div class="data-note"><b>One honest design note:</b> the flight data is historical, so WayFinder runs on a simulated travel clock set to August 2025. That is how a vague "next month" turns into a real, bookable window instead of a broken date. No external APIs, fully offline, exactly as the toolkit intended.</div>
 
 ---
 
-<!-- PAGE 7 — Engineering Boundaries & Future Roadmap -->
+<!-- PAGE 6 : DEMO VIDEO -->
 
-## Engineering Boundaries & Future Roadmap
+<div class="tag-num"><span class="n">V</span> Demo Video</div>
 
-<div class="roadmap-grid">
+## See it think, live (3 to 5 minutes)
+
+<div class="demo-grid">
 <div>
-
-<div class="col-kicker">CURRENT BOUNDARIES</div>
-
-<div class="check-item"><div class="check-dot"></div><div class="check-text"><b>Synthetic dataset</b> — sparse route/month coverage; one airport per city by design</div></div>
-<div class="check-item"><div class="check-dot"></div><div class="check-text"><b>No live booking or fare-class inventory</b> — prices are point-in-time snapshots, not live GDS quotes</div></div>
-<div class="check-item"><div class="check-dot"></div><div class="check-text"><b>No seat-map data</b> — seat wishes ("aisle, front of cabin") are acknowledged in the narrative, not optimized against</div></div>
-
+<ul class="demo-list">
+<li><b>Personalization with receipts</b> · hover any preference to see the quote it came from</li>
+<li><b>Conversational refinement</b> · "make it cheaper", "under $900", it never forgets or fakes</li>
+<li><b>The family trap</b> · books 3 seats from "traveling with 2 kids", narrows to school holidays</li>
+<li><b>The impossible request</b> · no direct Lisbon to Sydney exists, watch the Relaxation Ladder</li>
+<li><b>Multi-city map</b> · every visit order tried, self-composed connections drawn as dashed arcs</li>
+<li><b>Self-grading</b> · runs the judges' own prompts and verifies 42 of 42 behaviors on screen</li>
+</ul>
 </div>
-<div class="timeline-col">
-
-<div class="col-kicker">ROADMAP</div>
-
-<div class="timeline-row">
-<div class="timeline-dot now"></div>
-<div class="timeline-stage">NOW — SHIPPED</div>
-<div class="timeline-text">Deterministic core + optional LLM assist, conversational refinement loop, live self-grading harness — <b>42/42</b> behaviors, reproducible on one command.</div>
+<div>
+<div class="qr-box">
+<div class="q"></div>
+<div class="lbl">Watch the 3 to 5 min demo</div>
+<div class="url">[ paste OneDrive / YouTube link here ]</div>
 </div>
-
-<div class="timeline-row">
-<div class="timeline-dot"></div>
-<div class="timeline-stage">NEXT</div>
-<div class="timeline-text">Live <b>NDC/GDS API</b> connections replacing the synthetic dataset; a <b>Learning-to-Rank</b> model trained on real traveler accept/reject signals, layered on top of today's rule-derived weights.</div>
-</div>
-
-<div class="timeline-row">
-<div class="timeline-dot"></div>
-<div class="timeline-stage">LATER</div>
-<div class="timeline-text">Cross-product <b>"travel clock" bundling</b> — hotels, cars, and experiences synchronized to the same trip window — plus CO₂-aware scoring as a first-class ranking factor.</div>
-</div>
-
 </div>
 </div>
 
-<div class="closing-tag">Built to be extended, not thrown away.</div>
+---
+
+<!-- PAGE 7 : IMPACT & CLOSE -->
+
+<div class="tag-num"><span class="n">✦</span> Why It Wins</div>
+
+## Proven, differentiated, and ready to grow
+
+<div class="impact-grid">
+<div class="metric">
+<span class="pill-blue">Proof</span>
+<h4>42 of 42 behaviors verified</h4>
+<p>The app grades itself against the judges' own benchmark file, deterministically, reproducible with one command. Not screenshots, actual checks.</p>
+</div>
+<div class="metric">
+<span class="pill">Differentiation</span>
+<h4>Personalization you can audit</h4>
+<p>Every recommendation traces to a cited reason. Receipts on preferences, honesty when a request is impossible, a conversation that remembers.</p>
+</div>
+<div class="metric">
+<span class="pill-blue">Impact for Expedia</span>
+<h4>Conversion, trust, deflection</h4>
+<p>Relevant first results lift search-to-book. Transparent pricing and layover explanations pre-empt support tickets. Auditable ranking survives review.</p>
+</div>
+<div class="metric">
+<span class="pill">Roadmap</span>
+<h4>Built to extend, not throw away</h4>
+<p>Live NDC and GDS feeds, learning-to-rank from real booking outcomes, and cross-product bundling for hotels and cars on the same trip clock.</p>
+</div>
+</div>
+
+<div class="close-line">Personalization you can actually <span>audit</span>. Thank you.</div>

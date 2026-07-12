@@ -1,7 +1,7 @@
 # 🎬 WayFinder — Demo Video Script (Definitive Cut)
 
 **Target duration: 4:55 (hard cap 5:00)**
-**Presenter: Ishika Sattawan · IIT Roorkee · Solo submission**
+**Presenter: Ishika Sattawan**
 **Event: Expedia Group Campus Hackathon 2026 — "Build the Future of Travel" · Innovation Round**
 
 > This script is written to score against the **exact** judging criteria: problem understanding
@@ -234,7 +234,7 @@
 >
 > Personalization you can actually **audit**. Thank you."
 
-> **[Hold on 42/42 for 2–3 seconds. Cut to an end card: "WayFinder · Ishika Sattawan · IIT Roorkee".]**
+> **[Hold on 42/42 for 2-3 seconds. Cut to an end card: "WayFinder · Ishika Sattawan".]**
 
 ---
 
