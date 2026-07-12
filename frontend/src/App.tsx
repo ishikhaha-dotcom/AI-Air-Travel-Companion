@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Clock3, Database, Navigation, ShieldCheck, Sparkles } from 'lucide-react'
+import { Clock3, Database, Navigation, PanelLeftOpen, ShieldCheck, Sparkles } from 'lucide-react'
 import { fetchBenchmarks, fetchMeta, fetchProfile, fetchUsers, postRecommend, postRefine } from './api'
 import type { Benchmark, Meta, RecommendResponse, UserProfile, UserSummary } from './types'
-import TravelerSwitcher from './components/TravelerSwitcher'
+import TravelerSidebar from './components/TravelerSidebar'
 import ProfilePanel from './components/ProfilePanel'
 import TripConsole from './components/TripConsole'
 import ResultsView from './components/ResultsView'
@@ -42,6 +42,7 @@ export default function App() {
   // this is what collapses the B01–B06 template grid into a compact rail
   // (directive: "the exact second a search is executed").
   const [hasSearched, setHasSearched] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(true)
 
   useEffect(() => {
     fetchMeta().then(setMeta).catch(() => setError('Backend not reachable — start uvicorn on :8000'))
@@ -85,6 +86,12 @@ export default function App() {
     <div className="h-full flex flex-col">
       <header className="flex items-center gap-4 px-5 py-3 border-b hairline shrink-0"
         style={{ background: 'var(--surface)' }}>
+        {!sidebarOpen && (
+          <button onClick={() => setSidebarOpen(true)} title="Show travelers sidebar"
+            className="btn-ghost !p-2 flex items-center gap-1.5 text-xs">
+            <PanelLeftOpen size={15} /> Travelers
+          </button>
+        )}
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg flex items-center justify-center"
             style={{ background: 'var(--accent-grad)' }}>
@@ -121,30 +128,33 @@ export default function App() {
         )}
       </header>
 
-      <div className="flex-1 min-h-0 overflow-y-auto">
-        <div className="max-w-[1400px] mx-auto p-4">
-          <div className="flex gap-1.5 text-sm mb-3">
-            {([['plan', 'Plan a trip'], ['bench', 'Benchmark self-grading']] as const).map(([key, label]) => (
-              <button key={key} onClick={() => setTab(key)}
-                className="px-4 py-2 rounded-lg font-medium transition-colors"
-                style={tab === key
-                  ? { background: 'var(--surface-2)', color: 'var(--ink)', border: '1px solid var(--border-strong)' }
-                  : { color: 'var(--muted)', border: '1px solid transparent' }}>
-                {label}
-              </button>
-            ))}
-          </div>
+      <div className="flex flex-1 min-h-0">
+        <TravelerSidebar users={users} selected={selected} onSelect={setSelected}
+          benchUsers={benchUsers} open={sidebarOpen} onToggle={() => setSidebarOpen(o => !o)} />
 
-          {tab === 'plan' ? (
-            /* TWO-PANE WORKSPACE — left: traveler dossier (fixed ~1fr), right:
-               active planner + results (~2.5fr), stacking on narrow viewports. */
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_2.5fr] gap-4 items-start">
-              <div className="space-y-3 lg:sticky lg:top-4">
-                <TravelerSwitcher users={users} selected={selected} onSelect={setSelected} benchUsers={benchUsers} />
-                {profile && <ProfilePanel profile={profile} />}
-              </div>
+        <main className="flex-1 min-w-0 overflow-y-auto">
+          <div className="max-w-[1400px] mx-auto p-4">
+            <div className="flex gap-1.5 text-sm mb-3">
+              {([['plan', 'Plan a trip'], ['bench', 'Benchmark self-grading']] as const).map(([key, label]) => (
+                <button key={key} onClick={() => setTab(key)}
+                  className="px-4 py-2 rounded-lg font-medium transition-colors"
+                  style={tab === key
+                    ? { background: 'var(--surface-2)', color: 'var(--ink)', border: '1px solid var(--border-strong)' }
+                    : { color: 'var(--muted)', border: '1px solid transparent' }}>
+                  {label}
+                </button>
+              ))}
+            </div>
 
-              <div className="space-y-4 min-w-0">
+            {tab === 'plan' ? (
+              /* TWO-PANE WORKSPACE — left: traveler dossier (fixed ~1fr), right:
+                 active planner + results (~2.5fr), stacking on narrow viewports. */
+              <div className="grid grid-cols-1 lg:grid-cols-[1fr_2.5fr] gap-4 items-start">
+                <div className="space-y-3 lg:sticky lg:top-4">
+                  {profile && <ProfilePanel profile={profile} />}
+                </div>
+
+                <div className="space-y-4 min-w-0">
                 <TripConsole
                   query={query} setQuery={setQuery} benchmarks={benchmarks}
                   loading={loading} compact={hasSearched}
@@ -170,12 +180,13 @@ export default function App() {
                     </div>
                   </div>
                 )}
+                </div>
               </div>
-            </div>
-          ) : (
-            <BenchmarkTab benchmarks={benchmarks} />
-          )}
-        </div>
+            ) : (
+              <BenchmarkTab benchmarks={benchmarks} />
+            )}
+          </div>
+        </main>
       </div>
     </div>
   )
