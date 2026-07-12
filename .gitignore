@@ -6,3 +6,13 @@ node_modules/
 frontend/dist/
 .DS_Store
 .env
+
+# Local submission-folder assembly inside deliverables/. The canonical source
+# lives at the repo root, so these duplicates and large binaries stay out of git.
+deliverables/backend/
+deliverables/frontend/
+deliverables/*.mp4
+deliverables/full_source_code.md
+deliverables/code_and_documentation.md
+deliverables/PROGRESS.md
+deliverables/README.md
